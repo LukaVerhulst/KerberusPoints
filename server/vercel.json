@@ -5,8 +5,12 @@
             "src": "server.js",
             "use": "@vercel/node",
             "config": {
+                "maxLambdaSize": "50mb",
                 "includeFiles": [
-                    "dist/**"
+                    "configs/**",
+                    "controllers/**",
+                    "models/**",
+                    "routes/**"
                 ]
             }
         }
@@ -16,5 +20,10 @@
             "src": "/(.*)",
             "dest": "server.js"
         }
-    ]
+    ],
+    "functions": {
+        "server.js": {
+            "maxDuration": 30
+        }
+    }
 }

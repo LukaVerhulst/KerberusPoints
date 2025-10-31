@@ -32,7 +32,7 @@ export const getCompletions = async (req, res) => {
   try {
     const completions = await TaskCompletion.find({ 
       schachtId: req.params.schachtId 
-    });
+    }).lean();
     res.json(completions);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -47,9 +47,10 @@ export const completeTask = async (req, res) => {
   try {
     const { schachtId, taskId } = req.body;
     
-    const task = await Task.findById(taskId);
+    const task = await Task.findById(taskId).lean().session(session);
     if (!task) {
-      throw new Error('Task not found');
+      await session.abortTransaction();
+      return res.status(404).json({ message: 'Task not found' });
     }
 
     // Create completion record
@@ -65,7 +66,7 @@ export const completeTask = async (req, res) => {
       schachtId,
       { $inc: { points: task.points }},
       { session, new: true }
-    );
+    ).lean();
 
     await session.commitTransaction();
     res.status(201).json({ completion, updatedSchacht });
@@ -87,7 +88,8 @@ export const createCustomTask = async (req, res) => {
     const { schachtId, name, points, repeatable = false, interval = 'none', description = '', category = '' } = req.body;
 
     if (!schachtId || !name || typeof points !== 'number') {
-      throw new Error('Missing required fields: schachtId, name, points');
+      await session.abortTransaction();
+      return res.status(400).json({ message: 'Missing required fields: schachtId, name, points' });
     }
 
     // Create task with ownerSchachtId set
@@ -116,7 +118,7 @@ export const createCustomTask = async (req, res) => {
       schachtId,
       { $inc: { points: points }},
       { session, new: true }
-    );
+    ).lean();
 
     await session.commitTransaction();
 
@@ -133,49 +135,95 @@ export const createCustomTask = async (req, res) => {
 
 // Delete a task completion
 export const deleteCompletion = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { completionId } = req.params;
-    const completion = await TaskCompletion.findByIdAndDelete(completionId);
+    const completion = await TaskCompletion.findById(completionId).session(session);
 
-    if (!completion) return res.status(404).json({ message: 'Completion not found' });
+    if (!completion) {
+      await session.abortTransaction();
+      return res.status(404).json({ message: 'Completion not found' });
+    }
 
     // Also subtract points from the schacht
-    const task = await Task.findById(completion.taskId);
+    const task = await Task.findById(completion.taskId).lean().session(session);
     if (task) {
       await Schacht.findByIdAndUpdate(
         completion.schachtId,
-        { $inc: { points: -task.points } }
+        { $inc: { points: -task.points } },
+        { session }
       );
     }
 
+    await completion.deleteOne({ session });
+    await session.commitTransaction();
     res.status(200).json({ message: 'Completion removed' });
   } catch (err) {
+    await session.abortTransaction();
     console.error(err);
     res.status(500).json({ message: 'Error removing completion' });
+  } finally {
+    session.endSession();
   }
 };
 
 // Delete a custom task
 export const deleteCustomTask = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { taskId } = req.params;
 
-    const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ message: "Task not found" });
-    if (!task.ownerSchachtId) 
+    const task = await Task.findById(taskId).session(session);
+    if (!task) {
+      await session.abortTransaction();
+      return res.status(404).json({ message: "Task not found" });
+    }
+    if (!task.ownerSchachtId) {
+      await session.abortTransaction();
       return res.status(400).json({ message: "Cannot delete global task" });
-
-    // Remove all completions of this custom task
-    const completions = await TaskCompletion.find({ taskId });
-    for (const c of completions) {
-      await Schacht.findByIdAndUpdate(c.schachtId, { $inc: { points: -task.points } });
-      await c.deleteOne();
     }
 
-    await task.deleteOne();
+    // Get all completions and group by schachtId to batch update points
+    const completions = await TaskCompletion.find({ taskId }).lean().session(session);
+    
+    // Group completions by schachtId and count them
+    const schachtPointsMap = {};
+    completions.forEach(c => {
+      if (!schachtPointsMap[c.schachtId]) {
+        schachtPointsMap[c.schachtId] = 0;
+      }
+      schachtPointsMap[c.schachtId] += task.points;
+    });
+
+    // Batch update all schachten points in parallel
+    const updatePromises = Object.entries(schachtPointsMap).map(([schachtId, pointsToSubtract]) => 
+      Schacht.findByIdAndUpdate(
+        schachtId,
+        { $inc: { points: -pointsToSubtract } },
+        { session }
+      )
+    );
+
+    // Delete all completions in one operation
+    const deleteCompletionPromise = TaskCompletion.deleteMany({ taskId }).session(session);
+    
+    // Delete the task
+    const deleteTaskPromise = task.deleteOne({ session });
+
+    // Execute all operations in parallel
+    await Promise.all([...updatePromises, deleteCompletionPromise, deleteTaskPromise]);
+
+    await session.commitTransaction();
     res.status(200).json({ message: "Custom task deleted" });
   } catch (err) {
+    await session.abortTransaction();
     console.error(err);
     res.status(500).json({ message: "Error deleting custom task" });
+  } finally {
+    session.endSession();
   }
 };

@@ -19,4 +19,8 @@ const taskSchema = new mongoose.Schema({
   }
 });
 
+// Add indexes for frequently queried fields
+taskSchema.index({ ownerSchachtId: 1 }); // For filtering tasks by owner
+taskSchema.index({ category: 1 }); // For filtering by category
+
 export default mongoose.model('Task', taskSchema);

@@ -4,7 +4,7 @@ import TaskCompletion from '../models/TaskCompletion.js';
 // Get all Schachten sorted by points
 export const getSchachten = async (req, res)=> {
     try {
-        const schatchen = await Schacht.find().sort({ points: -1 });
+        const schatchen = await Schacht.find().sort({ points: -1 }).lean();
         res.status(200).json(schatchen);
     } catch (error) {
         res.status(500).json({ message: error.message });

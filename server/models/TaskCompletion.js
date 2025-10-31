@@ -17,4 +17,10 @@ const taskCompletionSchema = new mongoose.Schema({
   }
 });
 
+// Add indexes for frequently queried fields
+taskCompletionSchema.index({ schachtId: 1 }); // For finding completions by schacht
+taskCompletionSchema.index({ taskId: 1 }); // For finding completions by task
+taskCompletionSchema.index({ schachtId: 1, taskId: 1 }); // Compound index for unique lookups
+taskCompletionSchema.index({ completedAt: -1 }); // For sorting by completion date
+
 export default mongoose.model('TaskCompletion', taskCompletionSchema);

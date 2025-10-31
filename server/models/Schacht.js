@@ -15,4 +15,8 @@ const schachtSchema = new mongoose.Schema({
     collection: 'schachten' 
 });
 
+// Add indexes for frequently queried fields
+schachtSchema.index({ points: -1 }); // For sorting leaderboard
+schachtSchema.index({ name: 1 }); // For name lookups (unique already creates an index, but explicit is good)
+
 export default mongoose.model('Schacht', schachtSchema);
