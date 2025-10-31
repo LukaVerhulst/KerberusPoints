@@ -46,8 +46,8 @@ export default function AddSchachtModal({ isOpen, onClose, onAdd }) {
           placeholder="Naam van de schacht"
         />
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="px-3 py-1 text-sm rounded bg-white/6 hover:bg-white/10 text-white">Cancel</button>
-          <button type="submit" className="px-3 py-1 text-sm rounded bg-primary text-white">Add</button>
+          <button type="button" onClick={onClose} className="px-3 py-1 text-sm rounded  text-white">Cancel</button>
+          <button type="submit" className="px-3 py-1 text-sm rounded bg-primary bg-white/6 hover:bg-white/10 text-white">Add</button>
         </div>
       </form>
     </div>
