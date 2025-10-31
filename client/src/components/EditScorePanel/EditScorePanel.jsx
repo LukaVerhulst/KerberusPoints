@@ -9,7 +9,6 @@ export default function EditScorePanel() {
   const { selectedSchacht, setSelectedSchacht, fetchSchachten, completeTask, fetchTasks, fetchCompletions, createCustomTask, removeCompletion, deleteCustomTask} = useAppContext();
   const [tasks, setTasks] = useState([]);
   const [completions, setCompletions] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCustomModal, setShowCustomModal] = useState(false);
 
@@ -23,14 +22,12 @@ export default function EditScorePanel() {
 
   const loadData = async () => {
     if (!selectedSchacht) return;
-    setLoading(true);
     const [t, c] = await Promise.all([
       fetchTasks(selectedSchacht._id),
       fetchCompletions(selectedSchacht._id)
     ]);
     setTasks(t);
     setCompletions(c);
-    setLoading(false);
   };
 
   const handleTaskClick = async (task) => {
@@ -75,13 +72,17 @@ export default function EditScorePanel() {
     }
   };
 
-  if (!selectedSchacht) return <div className="text-white/50 p-4 italic">Select a schacht to edit points</div>;
-  if (loading) return <div className="text-white/60 p-4">Loading...</div>;
+  if (!selectedSchacht) return (
+    <div className="w-full h-full rounded-lg border border-white/10 shadow-2xl backdrop-blur-md bg-black/35 flex flex-col justify-center items-center">
+      <div className="text-white/50 p-4 italic">Select a schacht to edit points</div>
+    </div>
+  );
 
   const filteredTasks = tasks.filter((t) => t.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="w-full h-full rounded-lg border border-white/10 shadow-2xl backdrop-blur-md bg-black/35 flex flex-col">
+      if (!selectedSchacht) return <div className="text-white/50 p-4 italic">Select a schacht to edit points</div>;
       <div className="p-4 flex justify-between items-center border-b border-white/10">
         <div>
           <h2 className="text-white/90 font-semibold">{selectedSchacht.name}</h2>
