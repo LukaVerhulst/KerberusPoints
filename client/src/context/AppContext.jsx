@@ -104,6 +104,48 @@ export const AppContextProvider = ({ children }) => {
       toast.error("Error removing completion");
     }
   };
+
+
+  // 🔹 Tasks & Completions
+  const fetchTasks = async (schachtId) => {
+    try {
+      const res = await axios.get(`http://localhost:4000/api/tasks?schachtId=${schachtId}`);
+      return res.data || [];
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+      toast.error("Error loading tasks");
+      return [];
+    }
+  };
+  
+  const fetchCompletions = async (schachtId) => {
+    try {
+      const res = await axios.get(`http://localhost:4000/api/completions/${schachtId}`);
+      return res.data || [];
+    } catch (err) {
+      console.error("Error fetching completions:", err);
+      toast.error("Error loading completions");
+      return [];
+    }
+  };
+
+  const createCustomTask = async (schachtId, { name, points, repeatable, interval }) => {
+    try {
+      const res = await axios.post("http://localhost:4000/api/custom-tasks", {
+        schachtId,
+        name,
+        points,
+        repeatable,
+        interval,
+      });
+      toast.success("Custom task created & completed");
+      return res.data;
+    } catch (err) {
+      console.error("Error creating custom task:", err);
+      toast.error("Error creating custom task");
+      throw err;
+    }
+  };
   
   useEffect(() => {
     fetchUser();
@@ -123,7 +165,10 @@ export const AppContextProvider = ({ children }) => {
     logout,
     addSchacht,
     completeTask,
-    removeCompletion, // <-- add this
+    removeCompletion,
+    fetchTasks,
+    fetchCompletions,
+    createCustomTask,
   };
 
 
