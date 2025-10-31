@@ -1,24 +1,11 @@
+// Helper function to check if a task has been completed
+export const isTaskCompleted = (task, completions) => {
+  return completions.some((c) => c.taskId === task._id);
+};
+
+// All tasks can now be completed multiple times (weekly logic removed)
+// This function is kept for compatibility but always returns allowed: true
 export const canCompleteTask = (task, completions) => {
-  const completed = completions
-    .filter((c) => c.taskId === task._id)
-    .map((c) => new Date(c.completedAt));
-
-  if (!task.repeatable) {
-    return { allowed: completed.length === 0, reason: "This task cannot be repeated" };
-  }
-
-  if (task.interval === "weekly") {
-    const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay() + 1);
-    weekStart.setHours(0, 0, 0, 0);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
-
-    const doneThisWeek = completed.some((d) => d >= weekStart && d <= weekEnd);
-    return { allowed: !doneThisWeek, reason: doneThisWeek ? "Already done this week" : "" };
-  }
-
+  // All tasks can be completed - no blocking logic
   return { allowed: true, reason: "" };
 };

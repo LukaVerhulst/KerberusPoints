@@ -1,5 +1,5 @@
 import React from "react";
-import { canCompleteTask } from "./taskUtils";
+import { canCompleteTask, isTaskCompleted } from "./taskUtils";
 
 export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom, onDeleteCustom }) {
   return (
@@ -18,7 +18,11 @@ export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom
 
         <div className="w-[25%] h-px bg-gray-400/60 mx-auto" />
         {tasks.map((task) => {
-          const { allowed, reason } = canCompleteTask(task, completions);
+          const { allowed } = canCompleteTask(task, completions);
+          const completed = isTaskCompleted(task, completions);
+          const isOneTimeTask = !task.repeatable;
+          const showStrikethrough = isOneTimeTask && completed;
+          
           return (
             <div
               key={task._id}
@@ -28,10 +32,11 @@ export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom
               <button
                 onClick={() => onTaskClick(task)}
                 disabled={!allowed}
-                title={!allowed ? reason : ""}
                 className="text-left flex-1"
               >
-                <div className="text-white/90">{task.name}</div>
+                <div className={`text-white/90 ${showStrikethrough ? 'line-through opacity-60' : ''}`}>
+                  {task.name}
+                </div>
                 <div className="text-sm text-white/60">
                   {task.points} points •{" "}
                   {!task.repeatable
