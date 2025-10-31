@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
@@ -16,7 +19,7 @@ export const AppContextProvider = ({ children }) => {
   // 🔹 Fetch current user
   const fetchUser = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/auth/me", { withCredentials: true });
+      const res = await axios.get("/api/auth/me", { withCredentials: true });
       const user = res.data?.user || null;
       setUser(user);
       setIsAuthenticated(!!user);
@@ -30,7 +33,7 @@ export const AppContextProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/auth/login",
+        "/api/auth/login",
         { email, password },
         { withCredentials: true }
       );
@@ -47,7 +50,7 @@ export const AppContextProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post("http://localhost:4000/api/auth/logout", {}, { withCredentials: true });
+      await axios.post("/api/auth/logout", {}, { withCredentials: true });
     } finally {
       setUser(null);
       setIsAuthenticated(false);
@@ -59,7 +62,7 @@ export const AppContextProvider = ({ children }) => {
   // 🔹 Schachten
   const fetchSchachten = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/schachten");
+      const response = await axios.get("/api/schachten");
       setSchachten(response.data);
       return response.data; // <-- return data
     } catch (error) {
@@ -71,7 +74,7 @@ export const AppContextProvider = ({ children }) => {
   
   const addSchacht = async (name) => {
     try {
-      await axios.post("http://localhost:4000/api/schachten", { name });
+      await axios.post("/api/schachten", { name });
       toast.success("Schacht toegevoegd");
       await fetchSchachten();
     } catch (error) {
@@ -84,7 +87,7 @@ export const AppContextProvider = ({ children }) => {
   // 🔹 Points management (when task completed)
   const completeTask = async (schachtId, taskId) => {
     try {
-      await axios.post("http://localhost:4000/api/completions", { schachtId, taskId });
+      await axios.post("/api/completions", { schachtId, taskId });
       toast.success("Punten toegevoegd");
       await fetchSchachten(); // refresh leaderboard
     } catch (err) {
@@ -96,7 +99,7 @@ export const AppContextProvider = ({ children }) => {
   // 🔹 Remove a completed task
   const removeCompletion = async (completionId) => {
     try {
-      await axios.delete(`http://localhost:4000/api/completions/${completionId}`);
+      await axios.delete(`/api/completions/${completionId}`);
       toast.success("Completion removed");
       await fetchSchachten(); // refresh leaderboard and points
     } catch (err) {
@@ -111,7 +114,7 @@ export const AppContextProvider = ({ children }) => {
       const confirmed = window.confirm("Are you sure you want to delete this custom task?");
       if (!confirmed) return;
   
-      await axios.delete(`http://localhost:4000/api/custom-tasks/${taskId}`);
+      await axios.delete(`/api/custom-tasks/${taskId}`);
       toast.success("Custom task deleted");
   
       // fetch updated tasks and completions
@@ -131,7 +134,7 @@ export const AppContextProvider = ({ children }) => {
   // 🔹 Tasks & Completions
   const fetchTasks = async (schachtId) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/tasks?schachtId=${schachtId}`);
+      const res = await axios.get(`/api/tasks?schachtId=${schachtId}`);
       return res.data || [];
     } catch (err) {
       console.error("Error fetching tasks:", err);
@@ -142,7 +145,7 @@ export const AppContextProvider = ({ children }) => {
   
   const fetchCompletions = async (schachtId) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/completions/${schachtId}`);
+      const res = await axios.get(`/api/completions/${schachtId}`);
       return res.data || [];
     } catch (err) {
       console.error("Error fetching completions:", err);
@@ -153,7 +156,7 @@ export const AppContextProvider = ({ children }) => {
 
   const createCustomTask = async (schachtId, { name, points, repeatable, interval }) => {
     try {
-      const res = await axios.post("http://localhost:4000/api/custom-tasks", {
+      const res = await axios.post("/api/custom-tasks", {
         schachtId,
         name,
         points,

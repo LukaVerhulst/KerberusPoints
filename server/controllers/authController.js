@@ -5,18 +5,30 @@ const signToken = (payload) =>
 
 export const login = (req, res) => {
   const { email, password } = req.body;
-  const adminEmail = process.env.ADMIN_EMAIL;
-  const adminPassword = process.env.ADMIN_PASSWORD;
 
   if (!email || !password) {
     return res.status(400).json({ message: "Missing credentials" });
   }
 
-  if (email !== adminEmail || password !== adminPassword) {
+  // Parse the admins list from environment
+  let admins;
+  try {
+    admins = JSON.parse(process.env.ADMINS);
+  } catch (err) {
+    console.error("Invalid ADMINS JSON in .env");
+    return res.status(500).json({ message: "Server misconfiguration" });
+  }
+
+  // Find matching admin
+  const admin = admins.find(
+    (a) => a.email === email && a.password === password
+  );
+
+  if (!admin) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 
-  const token = signToken({ email: adminEmail, role: "admin" });
+  const token = signToken({ email: admin.email, role: "admin" });
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -25,7 +37,7 @@ export const login = (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  return res.status(200).json({ email: adminEmail });
+  return res.status(200).json({ email: admin.email });
 };
 
 export const logout = (req, res) => {
@@ -39,7 +51,9 @@ export const me = (req, res) => {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    return res.status(200).json({ user: { email: payload.email, role: payload.role } });
+    return res.status(200).json({
+      user: { email: payload.email, role: payload.role },
+    });
   } catch (err) {
     return res.status(401).json({ user: null });
   }
