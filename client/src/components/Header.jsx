@@ -26,7 +26,7 @@ const Header = () => {
               onClick={logout}
               className="px-5 py-2 text-sm bg-red-600 text-white rounded"
             >
-              Logout
+              Uitloggen {/* Logout */}
             </button>
           ) : null}
         </div>

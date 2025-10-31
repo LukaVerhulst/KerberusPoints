@@ -41,7 +41,7 @@ const Login = () => {
             onSubmit={handleSubmit}
             className="w-full md:w-96 flex flex-col items-center justify-center gap-4"
           >
-            <h2 className="text-3xl md:text-4xl text-gray-900 font-medium">Log in</h2>
+            <h2 className="text-3xl md:text-4xl text-gray-900 font-medium">Inloggen</h2> {/* Log in */}
             <p className="text-sm text-gray-600/90">Log in met uw admin gegevens om door te gaan.</p>
 
             <div className="w-full h-px bg-gray-400/60 my-3" />
@@ -74,7 +74,7 @@ const Login = () => {
               type="submit"
               className="mt-4 w-full h-11 rounded-full text-white bg-primary-blue hover:opacity-95 transition-opacity"
             >
-              Login
+              Inloggen {/* Login */}
             </button>
           </form>
         </div>

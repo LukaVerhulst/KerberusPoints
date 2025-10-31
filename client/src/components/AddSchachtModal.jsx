@@ -34,9 +34,9 @@ export default function AddSchachtModal({ isOpen, onClose, onAdd }) {
         className="relative z-10 w-full max-w-sm bg-white/5 backdrop-blur-md rounded p-4"
         role="dialog"
         aria-modal="true"
-        aria-label="Add Schacht"
+        aria-label="Schacht toevoegen" // Add Schacht
       >
-        <h3 className="text-sm font-semibold text-white mb-2">Add Schacht</h3>
+        <h3 className="text-sm font-semibold text-white mb-2">Schacht toevoegen</h3> {/* Add Schacht */}
         <label className="block text-xs text-white/80 mb-1">Naam</label>
         <input
           ref={inputRef}
@@ -46,8 +46,8 @@ export default function AddSchachtModal({ isOpen, onClose, onAdd }) {
           placeholder="Naam van de schacht"
         />
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="px-3 py-1 text-sm rounded  text-white">Cancel</button>
-          <button type="submit" className="px-3 py-1 text-sm rounded bg-primary bg-white/6 hover:bg-white/10 text-white">Add</button>
+          <button type="button" onClick={onClose} className="px-3 py-1 text-sm rounded  text-white">Annuleren</button> {/* Cancel */}
+          <button type="submit" className="px-3 py-1 text-sm rounded bg-primary bg-white/6 hover:bg-white/10 text-white">Toevoegen</button> {/* Add */}
         </div>
       </form>
     </div>

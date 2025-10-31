@@ -37,19 +37,19 @@ export default function CustomTaskModal({ schacht, onSubmit, onClose }) {
       
       <form onSubmit={handleSubmit} className={MODAL_FORM_CLASSES}>
         <h3 className="text-lg font-semibold text-white/90 mb-3">
-          Create custom task for {schacht.name}
+          Maak aangepaste taak voor {schacht.name} {/* Create custom task for */}
         </h3>
 
-        <label className="block mb-2 text-sm text-white/70">Name</label>
+        <label className="block mb-2 text-sm text-white/70">Naam</label> {/* Name */}
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           className={INPUT_CLASSES}
-          placeholder="e.g. 'Helped with clean-up'"
+          placeholder="bijv. 'Hielp met opruimen'" // e.g. 'Helped with clean-up'
           required
         />
 
-        <label className="block mb-2 text-sm text-white/70">Points</label>
+        <label className="block mb-2 text-sm text-white/70">Punten</label> {/* Points */}
         <input
           type="number"
           value={points}
@@ -58,7 +58,7 @@ export default function CustomTaskModal({ schacht, onSubmit, onClose }) {
           required
         />
 
-        <label className="block mb-2 text-sm text-white/70">Repeat type</label>
+        <label className="block mb-2 text-sm text-white/70">Herhaaltype</label> {/* Repeat type */}
         <select
           value={repeatType}
           onChange={(e) => setRepeatType(e.target.value)}
@@ -69,13 +69,13 @@ export default function CustomTaskModal({ schacht, onSubmit, onClose }) {
           }}
         >
           <option value="once" className="text-black bg-white">
-            Once only
+            Eenmalig {/* Once only */}
           </option>
           <option value="repeatable" className="text-black bg-white">
-            Repeatable anytime
+            Herhaalbaar op elk moment {/* Repeatable anytime */}
           </option>
           <option value="weekly" className="text-black bg-white">
-            Weekly repeatable
+            Wekelijks herhaalbaar {/* Weekly repeatable */}
           </option>
         </select>
 
@@ -85,13 +85,13 @@ export default function CustomTaskModal({ schacht, onSubmit, onClose }) {
             onClick={onClose}
             className="px-3 py-1 rounded bg-white/6"
           >
-            Cancel
+            Annuleren {/* Cancel */}
           </button>
           <button
             type="submit"
             className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
           >
-            Create & Complete
+            Maak & Voltooi {/* Create & Complete */}
           </button>
         </div>
       </form>

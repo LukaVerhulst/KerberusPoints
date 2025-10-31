@@ -11,16 +11,16 @@ export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom
 
   return (
     <div className="flex flex-col flex-1 overflow-auto custom-scrollbar">
-      <h3 className="text-white/80 font-medium mb-2">Available Tasks</h3>
+      <h3 className="text-white/80 font-medium mb-2">Beschikbare Taken</h3> {/* Available Tasks */}
       
       <div className="space-y-2">
         <button
           onClick={onOpenCustom}
           className={`${BUTTON_BASE_CLASSES} border-2 border-white/25`}
         >
-          <div className="text-white/90 font-semibold">+ Create custom task</div>
+          <div className="text-white/90 font-semibold">+ Maak aangepaste taak</div> {/* Create custom task */}
           <div className="text-sm text-white/60">
-            Create a schacht-specific task and mark it completed
+            Maak een schacht-specifieke taak en markeer deze als voltooid {/* Create a schacht-specific task and mark it completed */}
           </div>
         </button>
 
@@ -45,9 +45,13 @@ export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom
                   {task.name}
                 </div>
                 <div className="text-sm text-white/60">
-                  {task.points} points • {taskTypeString}
+                  {/* points */}
+                  {task.points} punten • {taskTypeString}
                   {task.ownerSchachtId && (
-                    <span className="ml-2 text-xs text-yellow-300">(custom)</span>
+                    <>
+                      {/* custom */}
+                      <span className="ml-2 text-xs text-yellow-300">(aangepast)</span>
+                    </>
                   )}
                 </div>
               </button>
@@ -56,7 +60,7 @@ export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom
                 <button
                   onClick={handleDeleteClick(task._id)}
                   className={DELETE_BUTTON_CLASSES}
-                  aria-label="Delete custom task"
+                  aria-label="Verwijder aangepaste taak" // Delete custom task
                 >
                   ×
                 </button>

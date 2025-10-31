@@ -75,7 +75,7 @@ export default function EditScorePanel() {
     // Check if task can be completed
     const { allowed, reason } = canCompleteTask(task, completions);
     if (!allowed) {
-      toast.error(reason || "This task cannot be completed");
+      toast.error(reason || "Deze taak kan niet worden voltooid"); // This task cannot be completed
       return;
     }
     
@@ -84,7 +84,7 @@ export default function EditScorePanel() {
       await refreshSchachtData();
     } catch (error) {
       console.error("Error completing task:", error);
-      toast.error("Error completing task");
+      toast.error("Fout bij voltooien van taak"); // Error completing task
     }
   }, [selectedSchacht, completions, completeTask, refreshSchachtData]);
 
@@ -97,19 +97,19 @@ export default function EditScorePanel() {
       await refreshSchachtData();
     } catch (error) {
       console.error("Error creating custom task:", error);
-      toast.error("Error creating custom task");
+      toast.error("Fout bij aanmaken van aangepaste taak"); // Error creating custom task
     }
   }, [selectedSchacht, createCustomTask, refreshSchachtData]);
 
   const handleRemoveCompletion = useCallback(async (completionId) => {
-    if (!window.confirm("Remove this completed task?")) return;
+    if (!window.confirm("Deze voltooide taak verwijderen?")) return; // Remove this completed task?
     
     try {
       await removeCompletion(completionId);
       await refreshSchachtData();
     } catch (error) {
       console.error("Error removing completion:", error);
-      toast.error("Error removing completion");
+      toast.error("Fout bij verwijderen van voltooiing"); // Error removing completion
     }
   }, [removeCompletion, refreshSchachtData]);
 
@@ -129,8 +129,8 @@ export default function EditScorePanel() {
     if (!selectedSchacht) return;
     
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${selectedSchacht.name}"? ` +
-      "This will also delete all associated task completions."
+      `Weet u zeker dat u "${selectedSchacht.name}" wilt verwijderen? ` + // Are you sure you want to delete
+      "Dit zal ook alle bijbehorende taakvoltooiingen verwijderen." // This will also delete all associated task completions
     );
     
     if (!confirmed) return;
@@ -153,7 +153,7 @@ export default function EditScorePanel() {
     return (
       <div className={EMPTY_STATE_CLASSES}>
         <div className="text-white/50 p-4 italic">
-          Select a schacht to edit points
+          Selecteer een schacht om punten te bewerken {/* Select a schacht to edit points */}
         </div>
       </div>
     );
@@ -165,20 +165,20 @@ export default function EditScorePanel() {
       <div className="p-4 flex justify-between items-center border-b border-white/10">
         <div>
           <h2 className="text-white/90 font-semibold">{selectedSchacht.name}</h2>
-          <p className="text-white/60">Current Points: {selectedSchacht.points}</p>
+          <p className="text-white/60">Huidige Punten: {selectedSchacht.points}</p> {/* Current Points */}
         </div>
         <button
           onClick={handleDeleteSchacht}
           className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white"
         >
-          Delete
+          Verwijderen {/* Delete */}
         </button>
       </div>
 
       {/* Search */}
       <input
         type="text"
-        placeholder="Search available tasks..."
+        placeholder="Zoek beschikbare taken..." // Search available tasks...
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-2 py-1 text-white placeholder-white/50 rounded bg-white/6"

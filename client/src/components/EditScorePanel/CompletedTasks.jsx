@@ -11,7 +11,7 @@ export default function CompletedTasks({ tasks, completions, onRemove }) {
 
   return (
     <div className="flex flex-col flex-1 overflow-auto custom-scrollbar">
-      <h3 className="text-white/80 font-medium mb-2">Completed Tasks</h3>
+      <h3 className="text-white/80 font-medium mb-2">Voltooide Taken</h3> {/* Completed Tasks */}
       <div className="space-y-2">
         {Object.values(grouped).map(({ task, completions }) => (
           <div

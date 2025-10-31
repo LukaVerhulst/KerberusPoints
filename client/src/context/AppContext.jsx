@@ -67,7 +67,7 @@ export const AppContextProvider = ({ children }) => {
       return response.data; // <-- return data
     } catch (error) {
       console.error("Error fetching schachten:", error);
-      toast.error("Error loading leaderboard");
+      toast.error("Fout bij laden van leaderboard"); // Error loading leaderboard
       return [];
     }
   };
@@ -105,7 +105,7 @@ export const AppContextProvider = ({ children }) => {
       await fetchSchachten(); // refresh leaderboard
     } catch (err) {
       console.error("Error completing task:", err);
-      toast.error("Error completing task");
+      toast.error("Fout bij voltooien van taak"); // Error completing task
     }
   };
 
@@ -113,11 +113,11 @@ export const AppContextProvider = ({ children }) => {
   const removeCompletion = async (completionId) => {
     try {
       await axios.delete(`/api/completions/${completionId}`);
-      toast.success("Completion removed");
+      toast.success("Voltooiing verwijderd"); // Completion removed
       await fetchSchachten(); // refresh leaderboard and points
     } catch (err) {
       console.error("Error removing completion:", err);
-      toast.error("Error removing completion");
+      toast.error("Fout bij verwijderen van voltooiing"); // Error removing completion
     }
   };
 
@@ -125,15 +125,15 @@ export const AppContextProvider = ({ children }) => {
   const deleteCustomTask = async (taskId) => {
     try {
       if (!selectedSchacht) {
-        toast.error("No schacht selected");
+        toast.error("Geen schacht geselecteerd"); // No schacht selected
         return;
       }
 
-      const confirmed = window.confirm("Are you sure you want to delete this custom task?");
+      const confirmed = window.confirm("Weet u zeker dat u deze aangepaste taak wilt verwijderen?"); // Are you sure you want to delete this custom task?
       if (!confirmed) return;
   
       await axios.delete(`/api/custom-tasks/${taskId}`);
-      toast.success("Custom task deleted");
+      toast.success("Aangepaste taak verwijderd"); // Custom task deleted
   
       // Fetch updated tasks and completions
       const tasks = await fetchTasks(selectedSchacht._id);
@@ -143,7 +143,7 @@ export const AppContextProvider = ({ children }) => {
       return { tasks, completions }; // Return so component can update state
     } catch (err) {
       console.error("Error deleting custom task:", err);
-      toast.error("Error deleting custom task");
+      toast.error("Fout bij verwijderen van aangepaste taak"); // Error deleting custom task
     }
   };
 
@@ -154,7 +154,7 @@ export const AppContextProvider = ({ children }) => {
       return res.data || [];
     } catch (err) {
       console.error("Error fetching tasks:", err);
-      toast.error("Error loading tasks");
+      toast.error("Fout bij laden van taken"); // Error loading tasks
       return [];
     }
   };
@@ -165,7 +165,7 @@ export const AppContextProvider = ({ children }) => {
       return res.data || [];
     } catch (err) {
       console.error("Error fetching completions:", err);
-      toast.error("Error loading completions");
+      toast.error("Fout bij laden van voltooiingen"); // Error loading completions
       return [];
     }
   };
@@ -179,11 +179,11 @@ export const AppContextProvider = ({ children }) => {
         repeatable,
         interval,
       });
-      toast.success("Custom task created & completed");
+      toast.success("Aangepaste taak aangemaakt & voltooid"); // Custom task created & completed
       return res.data;
     } catch (err) {
       console.error("Error creating custom task:", err);
-      toast.error("Error creating custom task");
+      toast.error("Fout bij aanmaken van aangepaste taak"); // Error creating custom task
       throw err;
     }
   };

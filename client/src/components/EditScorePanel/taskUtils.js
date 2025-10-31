@@ -9,9 +9,9 @@ export const isTaskCompleted = (task, completions) => {
  * Get the display type string for a task
  */
 export const getTaskTypeString = (task) => {
-  if (!task.repeatable) return "Once only";
-  if (task.interval === "weekly") return "Weekly";
-  return "Repeatable";
+  if (!task.repeatable) return "Eenmalig"; // Once only
+  if (task.interval === "weekly") return "Wekelijks"; // Weekly
+  return "Herhaalbaar"; // Repeatable
 };
 
 /**
@@ -25,7 +25,7 @@ export const canCompleteTask = (task, completions) => {
     const completed = isTaskCompleted(task, completions);
     return {
       allowed: !completed,
-      reason: completed ? "This task can only be completed once" : ""
+      reason: completed ? "Deze taak kan maar één keer worden voltooid" : "" // This task can only be completed once
     };
   }
   

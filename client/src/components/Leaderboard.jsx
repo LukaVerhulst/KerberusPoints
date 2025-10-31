@@ -41,7 +41,7 @@ export default function Leaderboard() {
               onClick={() => setModalOpen(true)}
               className="text-sm text-white/95 bg-white/6 hover:bg-white/10 px-3 py-1 rounded"
             >
-              Add Schacht
+              Schacht toevoegen {/* Add Schacht */}
             </button>
           </div>
 
@@ -52,9 +52,9 @@ export default function Leaderboard() {
                   <tr>
                     <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-12">#</th>
                     <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide min-w-0"> {/* Changed this */}
-                      <span className="truncate block">Name</span> {/* Added truncate */}
+                      <span className="truncate block">Naam</span> {/* Name */}
                     </th>
-                    <th className="text-right px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-24">Points</th> {/* Changed width */}
+                    <th className="text-right px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-24">Punten</th> {/* Points */}
                   </tr>
                 </thead>
 
