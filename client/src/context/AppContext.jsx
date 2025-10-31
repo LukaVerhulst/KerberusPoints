@@ -124,25 +124,28 @@ export const AppContextProvider = ({ children }) => {
   // 🔹 Delete a custom task (only schacht-owned tasks)
   const deleteCustomTask = async (taskId) => {
     try {
+      if (!selectedSchacht) {
+        toast.error("No schacht selected");
+        return;
+      }
+
       const confirmed = window.confirm("Are you sure you want to delete this custom task?");
       if (!confirmed) return;
   
       await axios.delete(`/api/custom-tasks/${taskId}`);
       toast.success("Custom task deleted");
   
-      // fetch updated tasks and completions
+      // Fetch updated tasks and completions
       const tasks = await fetchTasks(selectedSchacht._id);
       const completions = await fetchCompletions(selectedSchacht._id);
-      await fetchSchachten(); // refresh leaderboard/points
+      await fetchSchachten(); // Refresh leaderboard/points
   
-      return { tasks, completions }; // return so component can update state
+      return { tasks, completions }; // Return so component can update state
     } catch (err) {
       console.error("Error deleting custom task:", err);
       toast.error("Error deleting custom task");
     }
   };
-
-
 
   // 🔹 Tasks & Completions
   const fetchTasks = async (schachtId) => {
@@ -185,11 +188,13 @@ export const AppContextProvider = ({ children }) => {
     }
   };
   
+  // Initialize data on mount
   useEffect(() => {
     fetchUser();
     fetchSchachten();
   }, []);
 
+  // Context value
   const value = {
     navigate,
     user,
@@ -210,7 +215,6 @@ export const AppContextProvider = ({ children }) => {
     createCustomTask,
     deleteCustomTask
   };
-
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

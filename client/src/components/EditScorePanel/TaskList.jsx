@@ -1,14 +1,22 @@
 import React from "react";
-import { canCompleteTask, isTaskCompleted } from "./taskUtils";
+import { isTaskCompleted, getTaskTypeString, canCompleteTask } from "./taskUtils";
+
+const BUTTON_BASE_CLASSES = "w-full p-2 text-left rounded transition-colors bg-linear-to-r from-white/4 to-white/2 hover:bg-white/10";
+const TASK_ITEM_CLASSES = "relative flex items-center justify-between p-2 rounded transition-colors bg-linear-to-r from-white/4 to-white/2 hover:bg-white/10";
+const DELETE_BUTTON_CLASSES = "text-red-600 font-bold text-2xl hover:text-red-800 transition ml-2";
 
 export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom, onDeleteCustom }) {
+  const handleTaskClick = (task) => () => onTaskClick(task);
+  const handleDeleteClick = (taskId) => () => onDeleteCustom(taskId);
+
   return (
     <div className="flex flex-col flex-1 overflow-auto custom-scrollbar">
       <h3 className="text-white/80 font-medium mb-2">Available Tasks</h3>
+      
       <div className="space-y-2">
         <button
           onClick={onOpenCustom}
-          className="w-full p-2 text-left rounded transition-colors bg-linear-to-r from-white/4 to-white/2 hover:bg-white/10 border-2 border-white/25"
+          className={`${BUTTON_BASE_CLASSES} border-2 border-white/25`}
         >
           <div className="text-white/90 font-semibold">+ Create custom task</div>
           <div className="text-sm text-white/60">
@@ -17,44 +25,38 @@ export default function TaskList({ tasks, completions, onTaskClick, onOpenCustom
         </button>
 
         <div className="w-[25%] h-px bg-gray-400/60 mx-auto" />
+        
         {tasks.map((task) => {
-          const { allowed } = canCompleteTask(task, completions);
           const completed = isTaskCompleted(task, completions);
           const isOneTimeTask = !task.repeatable;
           const showStrikethrough = isOneTimeTask && completed;
+          const taskTypeString = getTaskTypeString(task);
+          const { allowed, reason } = canCompleteTask(task, completions);
           
           return (
-            <div
-              key={task._id}
-              className="relative flex items-center justify-between p-2 rounded transition-colors bg-linear-to-r from-white/4 to-white/2 hover:bg-white/10"
-            >
-              {/* Task info */}
+            <div key={task._id} className={TASK_ITEM_CLASSES}>
               <button
-                onClick={() => onTaskClick(task)}
+                onClick={handleTaskClick(task)}
                 disabled={!allowed}
-                className="text-left flex-1"
+                title={reason}
+                className={`text-left flex-1 ${!allowed ? 'cursor-not-allowed opacity-50' : ''}`}
               >
                 <div className={`text-white/90 ${showStrikethrough ? 'line-through opacity-60' : ''}`}>
                   {task.name}
                 </div>
                 <div className="text-sm text-white/60">
-                  {task.points} points •{" "}
-                  {!task.repeatable
-                    ? "Once only"
-                    : task.interval === "weekly"
-                    ? "Weekly"
-                    : "Repeatable"}
+                  {task.points} points • {taskTypeString}
                   {task.ownerSchachtId && (
                     <span className="ml-2 text-xs text-yellow-300">(custom)</span>
                   )}
                 </div>
               </button>
         
-              {/* Delete button for custom tasks, same style as completed tasks */}
               {task.ownerSchachtId && (
                 <button
-                  onClick={() => onDeleteCustom(task._id)}
-                  className="text-red-600 font-bold text-2xl hover:text-red-800 transition ml-2"
+                  onClick={handleDeleteClick(task._id)}
+                  className={DELETE_BUTTON_CLASSES}
+                  aria-label="Delete custom task"
                 >
                   ×
                 </button>
