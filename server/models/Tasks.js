@@ -10,7 +10,13 @@ const taskSchema = new mongoose.Schema({
     default: 'none'
   },
   description: String,
-  category: String
+  category: String,
+  // NEW: optional owner — if set, the task is only visible to that schacht
+  ownerSchachtId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Schacht',
+    default: null
+  }
 });
 
 export default mongoose.model('Task', taskSchema);

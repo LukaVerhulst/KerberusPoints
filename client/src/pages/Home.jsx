@@ -2,7 +2,7 @@ import React from "react";
 import { assets } from "../assets/assets";
 import Header from "../components/Header";
 import Leaderboard from "../components/Leaderboard";
-import EditScorePanel from "../components/EditScorePanel";
+import EditScorePanel from "../components/EditScorePanel/EditScorePanel";
 import { generatePDF } from '../utils/generatePDF';
 import { useAppContext } from "../context/AppContext";
 

@@ -3,10 +3,24 @@ import TaskCompletion from '../models/TaskCompletion.js';
 import Schacht from '../models/Schacht.js';
 import mongoose from 'mongoose';
 
-// Get all tasks
+// Get all tasks (global + optional schacht-owned)
 export const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find();
+    const { schachtId } = req.query;
+
+    if (schachtId) {
+      // Return global tasks (ownerSchachtId null) + tasks owned by this schacht
+      const tasks = await Task.find({
+        $or: [
+          { ownerSchachtId: null },
+          { ownerSchachtId: schachtId }
+        ]
+      }).lean();
+      return res.json(tasks);
+    }
+
+    // default: return only global tasks
+    const tasks = await Task.find({ ownerSchachtId: null }).lean();
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -25,7 +39,7 @@ export const getCompletions = async (req, res) => {
   }
 };
 
-// Complete a task
+// Complete a task (existing taskId)
 export const completeTask = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -47,17 +61,70 @@ export const completeTask = async (req, res) => {
     await completion.save({ session });
 
     // Update schacht points
-    await Schacht.findByIdAndUpdate(
+    const updatedSchacht = await Schacht.findByIdAndUpdate(
       schachtId,
       { $inc: { points: task.points }},
-      { session }
+      { session, new: true }
     );
 
     await session.commitTransaction();
-    res.status(201).json(completion);
+    res.status(201).json({ completion, updatedSchacht });
 
   } catch (err) {
     await session.abortTransaction();
+    res.status(500).json({ message: err.message });
+  } finally {
+    session.endSession();
+  }
+};
+
+// Create a custom task owned by a schacht, immediately mark completed, update points
+export const createCustomTask = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { schachtId, name, points, repeatable = false, interval = 'none', description = '', category = '' } = req.body;
+
+    if (!schachtId || !name || typeof points !== 'number') {
+      throw new Error('Missing required fields: schachtId, name, points');
+    }
+
+    // Create task with ownerSchachtId set
+    const task = new Task({
+      name,
+      points,
+      repeatable,
+      interval,
+      description,
+      category,
+      ownerSchachtId: schachtId
+    });
+
+    await task.save({ session });
+
+    // Create completion record (since custom task should be immediately completed for that schacht)
+    const completion = new TaskCompletion({
+      schachtId,
+      taskId: task._id,
+      completedAt: new Date()
+    });
+    await completion.save({ session });
+
+    // Update schacht points
+    const updatedSchacht = await Schacht.findByIdAndUpdate(
+      schachtId,
+      { $inc: { points: points }},
+      { session, new: true }
+    );
+
+    await session.commitTransaction();
+
+    // Return created task, completion and updated schacht
+    res.status(201).json({ task, completion, updatedSchacht });
+  } catch (err) {
+    await session.abortTransaction();
+    console.error('Error creating custom task:', err);
     res.status(500).json({ message: err.message });
   } finally {
     session.endSession();
