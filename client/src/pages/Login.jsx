@@ -28,7 +28,7 @@ const Login = () => {
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-4xl bg-white/85 backdrop-blur-sm rounded-lg shadow-lg p-6 md:p-10 flex flex-col md:flex-row items-center gap-8">
           {/* logo area */}
-          <div className="flex-shrink-0 flex items-center justify-center">
+          <div className="shrink-0 flex items-center justify-center">
             <img
               src={assets.kerberus_logo}
               alt="Kerberus logo"

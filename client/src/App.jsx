@@ -12,9 +12,9 @@ function App() {
     <div className="text-default min-h-screen flex flex-col text-gray-700 bg-white">
       <Toaster />
 
-      <div className="px-6 md:px-16 lg:px-24 xl:px-32 flex-1">
-        <Routes>
-          <Route path="/login" element={<Login />} />
+
+      <Routes>
+        <Route path="/login" element={<Login />} />
           <Route
             path="/"
             element={
@@ -29,7 +29,6 @@ function App() {
           />
         </Routes>
       </div>
-    </div>
   );
 }
 

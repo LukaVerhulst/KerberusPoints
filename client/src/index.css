@@ -10,3 +10,53 @@
   --color-primary-blue: #0401b1;
   --color-primary-white: #ffffff;
 }
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,163,184,0.9) rgba(255,255,255,0.04);
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.02);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,#94a3b8 0%, #475569 100%);
+  border-radius: 9999px;
+  border: 2px solid rgba(0,0,0,0.12);
+}
+
+/* make thead/tbody separately scrollable while keeping column widths */
+.leaderboard-table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  height: 100%; /* parent is set to explicit height via flex */
+}
+.leaderboard-table thead,
+.leaderboard-table tbody {
+  display: block;
+}
+.leaderboard-table thead tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.leaderboard-table tbody {
+  display: block;
+  height: calc(100% - 56px); /* 56px ~= header/title + table header height; tweak if you change paddings */
+  overflow-y: auto;
+  width: 100%;
+}
+.leaderboard-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* ensure cells use box-sizing so widths line up */
+.leaderboard-table th,
+.leaderboard-table td {
+  box-sizing: border-box;
+}
