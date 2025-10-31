@@ -6,7 +6,7 @@ import CompletedTasks from "./CompletedTasks";
 import CustomTaskModal from "./CustomTaskModal";
 
 export default function EditScorePanel() {
-  const { selectedSchacht, setSelectedSchacht, fetchSchachten, completeTask, fetchTasks, fetchCompletions, createCustomTask, removeCompletion, deleteCustomTask} = useAppContext();
+  const { selectedSchacht, setSelectedSchacht, fetchSchachten, completeTask, fetchTasks, fetchCompletions, createCustomTask, removeCompletion, deleteCustomTask, deleteSchacht} = useAppContext();
   const [tasks, setTasks] = useState([]);
   const [completions, setCompletions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,6 +72,19 @@ export default function EditScorePanel() {
     }
   };
 
+  const handleDeleteSchacht = async () => {
+    if (!selectedSchacht) return;
+    if (!window.confirm(`Are you sure you want to delete "${selectedSchacht.name}"? This will also delete all associated task completions.`)) {
+      return;
+    }
+    try {
+      await deleteSchacht(selectedSchacht._id);
+    } catch (err) {
+      console.error(err);
+      // Error toast is handled in the context function
+    }
+  };
+
   if (!selectedSchacht) return (
     <div className="w-full h-full rounded-lg border border-white/10 shadow-2xl backdrop-blur-md bg-black/35 flex flex-col justify-center items-center">
       <div className="text-white/50 p-4 italic">Select a schacht to edit points</div>
@@ -88,7 +101,7 @@ export default function EditScorePanel() {
           <h2 className="text-white/90 font-semibold">{selectedSchacht.name}</h2>
           <p className="text-white/60">Current Points: {selectedSchacht.points}</p>
         </div>
-        <button onClick={() => {/* delete schacht logic */}} className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white">Delete</button>
+        <button onClick={handleDeleteSchacht} className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white">Delete</button>
       </div>
 
       <input

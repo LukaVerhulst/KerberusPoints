@@ -84,6 +84,19 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const deleteSchacht = async (id) => {
+    try {
+      await axios.delete(`/api/schachten/${id}`);
+      toast.success("Schacht verwijderd");
+      await fetchSchachten();
+      setSelectedSchacht(null); // Clear selection after deletion
+    } catch (error) {
+      console.error("Error deleting schacht:", error);
+      toast.error("Kon schacht niet verwijderen");
+      throw error;
+    }
+  };
+
   // 🔹 Points management (when task completed)
   const completeTask = async (schachtId, taskId) => {
     try {
@@ -189,6 +202,7 @@ export const AppContextProvider = ({ children }) => {
     login,
     logout,
     addSchacht,
+    deleteSchacht,
     completeTask,
     removeCompletion,
     fetchTasks,
