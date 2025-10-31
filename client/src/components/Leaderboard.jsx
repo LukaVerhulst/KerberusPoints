@@ -35,7 +35,7 @@ export default function Leaderboard() {
     <div className="w-full h-full bg-transparent p-0 flex">
       <div className="flex-1">
         <div className="w-full h-full rounded-lg border border-white/10 shadow-2xl backdrop-blur-md bg-black/35 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
             <h2 className="text-lg font-semibold text-white/95">Leaderboard</h2>
             <button
               onClick={() => setModalOpen(true)}
@@ -45,33 +45,39 @@ export default function Leaderboard() {
             </button>
           </div>
 
-          <div className="px-4 pb-4 flex-1 flex flex-col overflow-hidden">
-            <table className="leaderboard-table w-full table-fixed border-collapse text-sm h-full">
-              <thead>
-                <tr>
-                  <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide" style={{ width: 48 }}>#</th>
-                  <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide">Name</th>
-                  <th className="text-right px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide" style={{ width: 96 }}>Points</th>
-                </tr>
-              </thead>
-
-              <tbody className="custom-scrollbar">
-                {schachten.map((player, idx) => (
-                  <tr
-                    key={player._id}
-                    style={medalStyle(idx + 1)}
-                    className={`${baseRowClass} ${zebra} hover:bg-white/6 cursor-pointer text-white/70 hover:text-white font-medium`}
-                    onClick={() => setSelectedSchacht(player)}
-                  >
-                    <td className="px-4 py-3 w-12">{idx + 1}</td>
-                    <td className="px-4 py-3">{player.name}</td>
-                    <td className="px-4 py-3 text-right font-medium" style={{ width: 96 }}>
-                      {player.points}
-                    </td>
+          <div className="flex-1 min-h-0 overflow-hidden"> {/* Changed this line */}
+            <div className="h-full overflow-auto"> {/* Added this wrapper */}
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-12">#</th>
+                    <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide min-w-0"> {/* Changed this */}
+                      <span className="truncate block">Name</span> {/* Added truncate */}
+                    </th>
+                    <th className="text-right px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-24">Points</th> {/* Changed width */}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {schachten.map((player, idx) => (
+                    <tr
+                      key={player._id}
+                      style={medalStyle(idx + 1)}
+                      className={`${baseRowClass} ${zebra} hover:bg-white/6 cursor-pointer text-white/70 hover:text-white font-medium`}
+                      onClick={() => setSelectedSchacht(player)}
+                    >
+                      <td className="px-4 py-3 w-12">{idx + 1}</td>
+                      <td className="px-4 py-3 min-w-0"> {/* Changed this */}
+                        <span className="truncate block">{player.name}</span> {/* Added truncate */}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium w-24"> {/* Changed width */}
+                        {player.points}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
