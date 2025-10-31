@@ -31,7 +31,7 @@ const Home = () => {
             <div className="mt-2 flex justify-end">
               <button
                 onClick={() => generatePDF(schachten, assets.kerberus_logoBase64)}
-                className="px-4 py-2 rounded bg-white/6 hover:bg-white/10 text-white text-sm"
+                className="px-4 py-2 rounded-lg border border-white/10 shadow-2xl backdrop-blur-md bg-white/5 hover:bg-white/10 text-white text-sm"
               >
                 Download PDF
               </button>

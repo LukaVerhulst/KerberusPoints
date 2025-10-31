@@ -279,35 +279,35 @@ const tasks = [
     category: "Collection"
   },
   {
-    name: "Mullen met PRAESIDIUMLID - volledig",
+    name: "Muilen met PRAESIDIUMLID - muilen",
     points: 30,
     repeatable: true,
     interval: 'none',
-    description: "Mullen met PRAESIDIUMLID met bewijs - per praesidiumlid 1x punten",
+    description: "Muilen met PRAESIDIUMLID met bewijs - per praesidiumlid 1x punten",
     category: "Social"
   },
   {
-    name: "Mullen met PRAESIDIUMLID - kusje",
+    name: "Muilen met PRAESIDIUMLID - kusje",
     points: 15,
     repeatable: true,
     interval: 'none',
-    description: "Mullen met PRAESIDIUMLID met bewijs - alleen kusje - per praesidiumlid 1x punten",
+    description: "Muilen met PRAESIDIUMLID met bewijs - alleen kusje - per praesidiumlid 1x punten",
     category: "Social"
   },
   {
-    name: "Mullen met PRAESES/PRO-SENIOREN - volledig",
+    name: "Muilen met PRAESES/PRO-SENIOREN - muilen",
     points: 35,
     repeatable: true,
     interval: 'none',
-    description: "Mullen met de PRAESES/PRO-SENIOREN met bewijs - per flosh 1x punten",
+    description: "Muilen met de PRAESES/PRO-SENIOREN met bewijs - per flosh 1x punten",
     category: "Social"
   },
   {
-    name: "Mullen met PRAESES/PRO-SENIOREN - kusje",
+    name: "Muilen met PRAESES/PRO-SENIOREN - kusje",
     points: 17,
     repeatable: true,
     interval: 'none',
-    description: "Mullen met de PRAESES/PRO-SENIOREN met bewijs - alleen kusje - per flosh 1x punten",
+    description: "Muilen met de PRAESES/PRO-SENIOREN met bewijs - alleen kusje - per flosh 1x punten",
     category: "Social"
   },
   {

@@ -154,3 +154,28 @@ export const deleteCompletion = async (req, res) => {
     res.status(500).json({ message: 'Error removing completion' });
   }
 };
+
+// Delete a custom task
+export const deleteCustomTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+
+    const task = await Task.findById(taskId);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+    if (!task.ownerSchachtId) 
+      return res.status(400).json({ message: "Cannot delete global task" });
+
+    // Remove all completions of this custom task
+    const completions = await TaskCompletion.find({ taskId });
+    for (const c of completions) {
+      await Schacht.findByIdAndUpdate(c.schachtId, { $inc: { points: -task.points } });
+      await c.deleteOne();
+    }
+
+    await task.deleteOne();
+    res.status(200).json({ message: "Custom task deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting custom task" });
+  }
+};

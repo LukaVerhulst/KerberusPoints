@@ -6,7 +6,7 @@ import CompletedTasks from "./CompletedTasks";
 import CustomTaskModal from "./CustomTaskModal";
 
 export default function EditScorePanel() {
-  const { selectedSchacht, setSelectedSchacht, fetchSchachten, completeTask, fetchTasks, fetchCompletions, createCustomTask, removeCompletion } = useAppContext();
+  const { selectedSchacht, setSelectedSchacht, fetchSchachten, completeTask, fetchTasks, fetchCompletions, createCustomTask, removeCompletion, deleteCustomTask} = useAppContext();
   const [tasks, setTasks] = useState([]);
   const [completions, setCompletions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +67,14 @@ export default function EditScorePanel() {
     }
   };
 
+  const handleDeleteCustom = async (taskId) => {
+    const updated = await deleteCustomTask(taskId);
+    if (updated) {
+      setTasks(updated.tasks);
+      setCompletions(updated.completions);
+    }
+  };
+
   if (!selectedSchacht) return <div className="text-white/50 p-4 italic">Select a schacht to edit points</div>;
   if (loading) return <div className="text-white/60 p-4">Loading...</div>;
 
@@ -91,7 +99,7 @@ export default function EditScorePanel() {
       />
 
       <div className="flex gap-4 flex-1 overflow-hidden p-4">
-        <TaskList tasks={filteredTasks} completions={completions} onTaskClick={handleTaskClick} onOpenCustom={() => setShowCustomModal(true)} />
+        <TaskList tasks={filteredTasks} completions={completions} onTaskClick={handleTaskClick} onOpenCustom={() => setShowCustomModal(true)} onDeleteCustom={handleDeleteCustom}/>
         <CompletedTasks tasks={tasks} completions={completions} onRemove={handleRemoveCompletion} />
       </div>
 

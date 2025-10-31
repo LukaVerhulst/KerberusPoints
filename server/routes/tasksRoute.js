@@ -1,5 +1,5 @@
 import express from 'express';
-import { getTasks, getCompletions, completeTask, deleteCompletion, createCustomTask } from '../controllers/taskController.js';
+import { getTasks, getCompletions, completeTask, deleteCompletion, createCustomTask, deleteCustomTask } from '../controllers/taskController.js';
 
 const router = express.Router();
 
@@ -8,5 +8,6 @@ router.get('/completions/:schachtId', getCompletions);
 router.post('/completions', completeTask);
 router.post('/custom-tasks', createCustomTask); // NEW: create custom task for a schacht and auto-complete it
 router.delete('/completions/:completionId', deleteCompletion);
+router.delete('/custom-tasks/:taskId', deleteCustomTask);
 
 export default router;

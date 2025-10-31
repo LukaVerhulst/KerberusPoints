@@ -105,6 +105,28 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  // 🔹 Delete a custom task (only schacht-owned tasks)
+  const deleteCustomTask = async (taskId) => {
+    try {
+      const confirmed = window.confirm("Are you sure you want to delete this custom task?");
+      if (!confirmed) return;
+  
+      await axios.delete(`http://localhost:4000/api/custom-tasks/${taskId}`);
+      toast.success("Custom task deleted");
+  
+      // fetch updated tasks and completions
+      const tasks = await fetchTasks(selectedSchacht._id);
+      const completions = await fetchCompletions(selectedSchacht._id);
+      await fetchSchachten(); // refresh leaderboard/points
+  
+      return { tasks, completions }; // return so component can update state
+    } catch (err) {
+      console.error("Error deleting custom task:", err);
+      toast.error("Error deleting custom task");
+    }
+  };
+
+
 
   // 🔹 Tasks & Completions
   const fetchTasks = async (schachtId) => {
@@ -169,6 +191,7 @@ export const AppContextProvider = ({ children }) => {
     fetchTasks,
     fetchCompletions,
     createCustomTask,
+    deleteCustomTask
   };
 
 
