@@ -35,7 +35,7 @@ export default function Leaderboard() {
     <div className="w-full h-full bg-transparent p-0 flex">
       <div className="flex-1">
         <div className="w-full h-full rounded-lg border border-white/10 shadow-2xl backdrop-blur-md bg-black/35 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 shrink-0">
             <h2 className="text-lg font-semibold text-white/95">Leaderboard</h2>
             <button
               onClick={() => setModalOpen(true)}
