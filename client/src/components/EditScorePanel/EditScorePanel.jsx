@@ -204,6 +204,7 @@ export default function EditScorePanel() {
           tasks={tasks}
           completions={completions}
           onRemove={handleRemoveCompletion}
+          deletingIds={deletingIds}
         />
       </div>
 

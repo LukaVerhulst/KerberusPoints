@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function CompletedTasks({ tasks, completions, onRemove }) {
+export default function CompletedTasks({ tasks, completions, onRemove, deletingIds }) {
   const grouped = completions.reduce((acc, completion) => {
     const task = tasks.find((t) => t._id === completion.taskId);
     if (!task) return acc;
@@ -11,7 +11,7 @@ export default function CompletedTasks({ tasks, completions, onRemove }) {
 
   return (
     <div className="flex flex-col flex-1 overflow-auto custom-scrollbar">
-      <h3 className="text-white/80 font-medium mb-2">Voltooide Taken</h3> {/* Completed Tasks */}
+      <h3 className="text-white/80 font-medium mb-2">Voltooide Taken</h3>
       <div className="space-y-2">
         {Object.values(grouped).map(({ task, completions }) => (
           <div
@@ -24,8 +24,8 @@ export default function CompletedTasks({ tasks, completions, onRemove }) {
                 <div className="text-white/60 font-medium">{completions.length}x</div>
               )}
               <button
-                onClick={() => onRemove(completion._id)}
-                disabled={deletingIds.includes(completion._id)}
+                onClick={() => onRemove(completions[0]._id)}
+                disabled={deletingIds.includes(completions[0]._id)}
                 className="text-red-600 font-bold text-2xl hover:text-red-800 transition"
               >
                 ×
@@ -37,3 +37,4 @@ export default function CompletedTasks({ tasks, completions, onRemove }) {
     </div>
   );
 }
+
