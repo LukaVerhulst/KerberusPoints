@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 
 export default function AddSchachtModal({ isOpen, onClose, onAdd }) {
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       setName('');
+      setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
@@ -20,9 +22,16 @@ export default function AddSchachtModal({ isOpen, onClose, onAdd }) {
   const submit = async (e) => {
     e.preventDefault();
     const trimmed = name.trim();
-    if (!trimmed) return;
-    await onAdd(trimmed);
-    onClose();
+    if (!trimmed || loading) return;
+
+    setLoading(true);
+    try {
+      await onAdd(trimmed);
+      onClose();
+    } catch (err) {
+      console.error("Error adding schacht:", err);
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -34,9 +43,9 @@ export default function AddSchachtModal({ isOpen, onClose, onAdd }) {
         className="relative z-10 w-full max-w-sm bg-white/5 backdrop-blur-md rounded p-4"
         role="dialog"
         aria-modal="true"
-        aria-label="Schacht toevoegen" // Add Schacht
+        aria-label="Schacht toevoegen"
       >
-        <h3 className="text-sm font-semibold text-white mb-2">Schacht toevoegen</h3> {/* Add Schacht */}
+        <h3 className="text-sm font-semibold text-white mb-2">Schacht toevoegen</h3>
         <label className="block text-xs text-white/80 mb-1">Naam</label>
         <input
           ref={inputRef}
@@ -46,8 +55,21 @@ export default function AddSchachtModal({ isOpen, onClose, onAdd }) {
           placeholder="Naam van de schacht"
         />
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="px-3 py-1 text-sm rounded  text-white">Annuleren</button> {/* Cancel */}
-          <button type="submit" className="px-3 py-1 text-sm rounded bg-primary bg-white/6 hover:bg-white/10 text-white">Toevoegen</button> {/* Add */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-3 py-1 text-sm rounded text-white"
+            disabled={loading}
+          >
+            Annuleren
+          </button>
+          <button
+            type="submit"
+            className="px-3 py-1 text-sm rounded bg-primary bg-white/6 hover:bg-white/10 text-white"
+            disabled={loading}
+          >
+            {loading ? 'Toevoegen...' : 'Toevoegen'}
+          </button>
         </div>
       </form>
     </div>
