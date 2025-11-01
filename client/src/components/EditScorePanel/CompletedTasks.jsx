@@ -24,7 +24,8 @@ export default function CompletedTasks({ tasks, completions, onRemove }) {
                 <div className="text-white/60 font-medium">{completions.length}x</div>
               )}
               <button
-                onClick={() => onRemove(completions[0]._id)}
+                onClick={() => onRemove(completion._id)}
+                disabled={deletingIds.includes(completion._id)}
                 className="text-red-600 font-bold text-2xl hover:text-red-800 transition"
               >
                 ×

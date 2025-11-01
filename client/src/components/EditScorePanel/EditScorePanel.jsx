@@ -29,6 +29,7 @@ export default function EditScorePanel() {
   const [completions, setCompletions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCustomModal, setShowCustomModal] = useState(false);
+  const [deletingIds, setDeletingIds] = useState([]);
 
   // Load tasks and completions for selected schacht
   const loadData = useCallback(async () => {
@@ -103,18 +104,21 @@ export default function EditScorePanel() {
       toast.error("Fout bij aanmaken van aangepaste taak"); // Error creating custom task
     }
   }, [selectedSchacht, createCustomTask, refreshSchachtData]);
-
-  const handleRemoveCompletion = useCallback(async (completionId) => {
-    if (!window.confirm("Deze voltooide taak verwijderen?")) return; // Remove this completed task?
-    
+  
+  const handleRemoveCompletion = async (completionId) => {
+    if (deletingIds.includes(completionId)) return; // Already deleting
+  
+    setDeletingIds(prev => [...prev, completionId]);
     try {
       await removeCompletion(completionId);
       await refreshSchachtData();
     } catch (error) {
       console.error("Error removing completion:", error);
-      toast.error("Fout bij verwijderen van voltooiing"); // Error removing completion
+      toast.error("Fout bij verwijderen van voltooiing");
+    } finally {
+      setDeletingIds(prev => prev.filter(id => id !== completionId));
     }
-  }, [removeCompletion, refreshSchachtData]);
+  };
 
   const handleDeleteCustom = useCallback(async (taskId) => {
     try {
