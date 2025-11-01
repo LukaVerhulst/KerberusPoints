@@ -128,9 +128,6 @@ export const AppContextProvider = ({ children }) => {
         toast.error("Geen schacht geselecteerd"); // No schacht selected
         return;
       }
-
-      const confirmed = window.confirm("Weet u zeker dat u deze aangepaste taak wilt verwijderen?"); // Are you sure you want to delete this custom task?
-      if (!confirmed) return;
   
       await axios.delete(`/api/custom-tasks/${taskId}`);
       toast.success("Aangepaste taak verwijderd"); // Custom task deleted
