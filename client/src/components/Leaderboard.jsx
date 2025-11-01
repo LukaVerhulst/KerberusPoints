@@ -45,16 +45,16 @@ export default function Leaderboard() {
             </button>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-hidden"> {/* Changed this line */}
-            <div className="h-full overflow-auto"> {/* Added this wrapper */}
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <div className="h-full overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
                     <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-12">#</th>
-                    <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide min-w-0"> {/* Changed this */}
-                      <span className="truncate block">Naam</span> {/* Name */}
+                    <th className="text-left px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide min-w-0">
+                      <span className="truncate block">Naam</span>
                     </th>
-                    <th className="text-right px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-24">Punten</th> {/* Points */}
+                    <th className="text-right px-4 py-3 sticky top-0 backdrop-blur-sm bg-black/45 text-xs text-white/90 uppercase tracking-wide w-24">Punten</th>
                   </tr>
                 </thead>
 
@@ -67,10 +67,10 @@ export default function Leaderboard() {
                       onClick={() => setSelectedSchacht(player)}
                     >
                       <td className="px-4 py-3 w-12">{idx + 1}</td>
-                      <td className="px-4 py-3 min-w-0"> {/* Changed this */}
-                        <span className="truncate block">{player.name}</span> {/* Added truncate */}
+                      <td className="px-4 py-3 min-w-0">
+                        <span className="truncate block">{player.name}</span>
                       </td>
-                      <td className="px-4 py-3 text-right font-medium w-24"> {/* Changed width */}
+                      <td className="px-4 py-3 text-right font-medium w-24">
                         {player.points}
                       </td>
                     </tr>

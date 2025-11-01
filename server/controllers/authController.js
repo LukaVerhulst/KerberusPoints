@@ -19,6 +19,7 @@ export const login = (req, res) => {
     return res.status(500).json({ message: "Server misconfiguration" });
   }
 
+  console.log(email);
   // Find matching admin
   const admin = admins.find(
     (a) => a.email === email && a.password === password
@@ -32,8 +33,8 @@ export const login = (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: process.env.NODE_ENV === "production", // only secure in prod
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 

@@ -69,24 +69,27 @@ export default function EditScorePanel() {
   }, [selectedSchacht, loadData]);
 
   // Handlers
-  const handleTaskClick = useCallback(async (task) => {
+  const handleTaskClick = useCallback((task) => {
     if (!selectedSchacht) return;
-    
-    // Check if task can be completed
+  
     const { allowed, reason } = canCompleteTask(task, completions);
     if (!allowed) {
-      toast.error(reason || "Deze taak kan niet worden voltooid"); // This task cannot be completed
+      toast.error(reason || "Deze taak kan niet worden voltooid");
       return;
     }
-    
-    try {
-      await completeTask(selectedSchacht._id, task._id);
-      await refreshSchachtData();
-    } catch (error) {
+  
+    // Optimistic UI update
+    setCompletions(prev => [...prev, { ...task, _id: `temp-${task._id}` }]);
+  
+    // Fire-and-forget backend request
+    completeTask(selectedSchacht._id, task._id).catch(error => {
       console.error("Error completing task:", error);
-      toast.error("Fout bij voltooien van taak"); // Error completing task
-    }
-  }, [selectedSchacht, completions, completeTask, refreshSchachtData]);
+      toast.error("Fout bij voltooien van taak");
+  
+      // Revert optimistic update if it fails
+      setCompletions(prev => prev.filter(c => c._id !== `temp-${task._id}`));
+    });
+  }, [selectedSchacht, completions, completeTask]);
 
   const handleCustomSubmit = useCallback(async (payload) => {
     if (!selectedSchacht) return;
