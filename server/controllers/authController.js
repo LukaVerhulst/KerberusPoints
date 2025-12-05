@@ -42,7 +42,13 @@ export const login = (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("token", { httpOnly: true, sameSite: "lax" });
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Match login settings
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  };
+  
+  res.clearCookie("token", cookieOptions);
   return res.status(200).json({ ok: true });
 };
 
