@@ -33,8 +33,8 @@ export const login = (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // only secure in prod
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: true, // Always true (Vercel is HTTPS)
+    sameSite: "none", // Required for cross-origin
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -42,13 +42,11 @@ export const login = (req, res) => {
 };
 
 export const logout = (req, res) => {
-  const cookieOptions = {
+  res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Match login settings
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  };
-  
-  res.clearCookie("token", cookieOptions);
+    secure: true, // Always true (Vercel is HTTPS)
+    sameSite: "none",
+  });
   return res.status(200).json({ ok: true });
 };
 
