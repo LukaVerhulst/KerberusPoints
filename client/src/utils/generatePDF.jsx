@@ -23,16 +23,50 @@ export const generatePDF = (schachten, logoBase64) => {
   const x = (pageWidth - textWidth) / 2;
   doc.text(title, x, 60);
 
-  // Table below title (startY = 100)
-  const rows = schachten.map((s, idx) => [idx + 1, s.name, s.points]);
+  // Group schachten by points, then create rows
+  const rows = [];
+  const groupFill = [];
+  const palette = [
+    [247, 249, 255], // light blue
+    [233, 238, 252], // deeper blue
+  ];
+
+  let currentRank = 1;
+  let groupIndex = 0;
+  let idx = 0;
+
+  while (idx < schachten.length) {
+    const currentPoints = schachten[idx].points;
+    const namesGroup = [];
+
+    // Collect all names with same points
+    while (idx < schachten.length && schachten[idx].points === currentPoints) {
+      namesGroup.push(schachten[idx].name);
+      idx++;
+    }
+
+    // Create single row with all names joined
+    rows.push([currentRank, namesGroup.join(", "), currentPoints]);
+    groupFill.push(palette[groupIndex]);
+
+    // Alternate color for next group
+    groupIndex = 1 - groupIndex;
+    currentRank = idx + 1; // Next rank = position after this group
+  }
 
   autoTable(doc, {
     head: [["#", "Name", "Points"]],
     body: rows,
     startY: 100,
     theme: "grid",
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: "#0401b1", textColor: "#ffffff", fontStyle: "bold" }, // Blue header
+    styles: { fontSize: 10, valign: "middle" },
+    headStyles: { fillColor: "#0401b1", textColor: "#ffffff", fontStyle: "bold" },
+    columnStyles: { 0: { halign: "center" } },
+    didParseCell: (data) => {
+      if (data.section === "body") {
+        data.cell.styles.fillColor = groupFill[data.row.index];
+      }
+    },
   });
 
   doc.save("leaderboard.pdf");

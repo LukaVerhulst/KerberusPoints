@@ -373,7 +373,71 @@ const tasks = [
     interval: 'none',
     description: "Eet 2 bananen en ad dan een sprite",
     category: "Challenges"
-  }
+  },
+  {
+    name: "Aanwezig op kerberus activiteit",
+    points: 20,
+    repeatable: true,
+    interval: 'none',
+    description: "Aanwezig op kerberus activiteit",
+    category: "Events"
+  },
+  {
+    name: "4000 colorieën challenge",
+    points: 30,
+    repeatable: false,
+    interval: 'none',
+    description: "Eet 4000 colorieën in 1 dag (met bewijs)",
+    category: "Challenges"
+  },
+  {
+    name: "Kerstmarkt Ipsoc drink met 2 samen 1 pervert op (romantisch met rietjes)",
+    points: 15,
+    repeatable: false,
+    interval: 'none',
+    description: "Kerstmarkt Ipsoc drink met 2 samen 1 pervert op (romantisch met rietjes)",
+    category: "Kerstmarkt"
+  },
+  {
+    name: "Kerstmarkt doe van elke jenever 1 shotje bij kerberus",
+    points: 15,
+    repeatable: false,
+    interval: 'none',
+    description: "doe van elke jenever 1 shotje bij kerberus",
+    category: "Kerstmarkt"
+  },
+  {
+    name: "Kerstmarkt Trek een flugelcoctail binnen tegen een mercurius praesidium lid",
+    points: 15,
+    repeatable: false,
+    interval: 'none',
+    description: "Trek een flugelcoctail binnen tegen een mercurius praesidium lid",
+    category: "Kerstmarkt"
+  },
+  {
+    name: "Kerstmarkt Vraag voor baileys/amaretto met chocomelk idp en drink maar lekker op",
+    points: 15,
+    repeatable: false,
+    interval: 'none',
+    description: "Vraag voor baileys/amaretto met chocomelk idp en drink maar lekker op",
+    category: "Kerstmarkt"
+  },
+  {
+    name: "Kerstmarkt Trek een foto met minstens 2 andere kerstmutsen (jij ook 1)",
+    points: 15,
+    repeatable: false,
+    interval: 'none',
+    description: "Trek een foto met minstens 2 andere kerstmutsen (jij ook 1)",
+    category: "Kerstmarkt"
+  },
+  {
+    name: "Kleed je 24u lang als de kerstman",
+    points: 20,
+    repeatable: false,
+    interval: 'none',
+    description: "Kleed je 24u lang als de kerstman",
+    category: "Kerstmarkt"
+  },
 ];
 
 const seedTasks = async () => {
@@ -389,9 +453,9 @@ const seedTasks = async () => {
     console.log('Seeding tasks...');
     for (const task of tasks) {
       await Task.updateOne(
-        { name: task.name }, // match by name
-        { $set: task },      // update fields
-        { upsert: true }     // insert if not exists
+        { name: task.name, ownerSchachtId: null },
+        { $set: { ...task, ownerSchachtId: null } },
+        { upsert: true }
       );
     }
 
