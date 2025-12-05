@@ -51,8 +51,12 @@ export const logout = (req, res) => {
 };
 
 export const me = (req, res) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  
   const token = req.cookies?.token;
-  if (!token) return res.status(200).json({ user: null });
+  if (!token) {
+    return res.status(200).json({ user: null });
+  }
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
@@ -60,6 +64,6 @@ export const me = (req, res) => {
       user: { email: payload.email, role: payload.role },
     });
   } catch (err) {
-    return res.status(401).json({ user: null });
+    return res.status(200).json({ user: null });
   }
 };
