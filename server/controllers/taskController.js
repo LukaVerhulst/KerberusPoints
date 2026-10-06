@@ -1,251 +1,221 @@
-import mongoose from "mongoose";
 import Task from "../models/Tasks.js";
 import TaskCompletion from "../models/TaskCompletion.js";
 import Schacht from "../models/Schacht.js";
-
-// Utility: check if we can use sessions
-const supportsTransactions = () => mongoose.connection?.client?.topology?.s?.replicaSet;
-
-// Get all tasks (global + optional schacht-owned)
-export const getTasks = async (req, res) => {
-  try {
-    const { schachtId } = req.query;
-
-    if (schachtId) {
-      const tasks = await Task.find({
-        $or: [{ ownerSchachtId: null }, { ownerSchachtId: schachtId }],
-      }).lean();
-      return res.json(tasks);
+import TaskContext from "../models/TaskContext.js";
+import { transaction, objectId } from "../lib/transaction.js";
+import { evaluate, fail, textValue, normalize } from "../lib/rules.js";
+export async function getTasks(req, res) {
+  const filter = req.query.schachtId
+    ? {
+        $or: [
+          { ownerSchachtId: null },
+          { ownerSchachtId: objectId(req.query.schachtId) },
+        ],
+      }
+    : { ownerSchachtId: null };
+  res.json(
+    await Task.find(filter).sort({ order: 1, createdAt: 1, _id: 1 }).lean(),
+  );
+}
+export async function getCompletions(req, res) {
+  res.json(
+    await TaskCompletion.find({ schachtId: objectId(req.params.schachtId) })
+      .sort({ completedAt: -1, _id: -1 })
+      .lean(),
+  );
+}
+async function recordCompletion(task, schachtId, input, user, session) {
+  if (task.ownerSchachtId && String(task.ownerSchachtId) !== schachtId)
+    fail(403, "Deze opdracht hoort bij een andere schacht.");
+  const values = evaluate(task, input);
+  for (const [field, kind] of [
+    ["subjectId", "person"],
+    ["eventId", "event"],
+  ]) {
+    if (task.repeatRule.type !== kind) {
+      if (input[field]) fail(400, "Onverwachte context voor deze opdracht.");
+      continue;
     }
-
-    const tasks = await Task.find({ ownerSchachtId: null }).lean();
-    res.json(tasks);
-  } catch (err) {
-    console.error("Error fetching tasks:", err);
-    res.status(500).json({ message: err.message });
+    const context = await TaskContext.findById(objectId(input[field]))
+      .session(session)
+      .lean();
+    if (
+      !context ||
+      context.kind !== kind ||
+      !context.groups.includes(task.repeatRule.group)
+    )
+      fail(400, `Kies een geldige ${task.repeatRule.label}.`);
+    values[field] = context._id;
+    values[kind === "person" ? "subject" : "event"] = context.name;
   }
-};
-
-// Get completions for a schacht
-export const getCompletions = async (req, res) => {
-  try {
-    const completions = await TaskCompletion.find({
-      schachtId: req.params.schachtId,
-    }).lean();
-    res.json(completions);
-  } catch (err) {
-    console.error("Error fetching completions:", err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Complete an existing task
-export const completeTask = async (req, res) => {
-  const { schachtId, taskId } = req.body;
-
-  // Validate input early
-  if (!schachtId || !mongoose.isValidObjectId(taskId)) {
-    return res
-      .status(400)
-      .json({ message: "Invalid or missing schachtId/taskId" });
-  }
-
-  const useSession = supportsTransactions();
-  const session = useSession ? await mongoose.startSession() : null;
-
-  if (useSession) session.startTransaction();
-
-  try {
-    const task = await Task.findById(taskId).lean();
-    if (!task) {
-      if (useSession) await session.abortTransaction();
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    // Create completion record
-    const completion = new TaskCompletion({
-      schachtId,
-      taskId,
-      completedAt: new Date(),
-    });
-    await completion.save(useSession ? { session } : {});
-
-    // Update schacht points
-    const updatedSchacht = await Schacht.findByIdAndUpdate(
-      schachtId,
-      { $inc: { points: task.points } },
-      { new: true, ...(useSession ? { session } : {}) }
-    ).lean();
-
-    if (useSession) await session.commitTransaction();
-
-    res.status(201).json({ completion, updatedSchacht });
-  } catch (err) {
-    if (useSession) await session.abortTransaction();
-    console.error("Error completing task:", err);
-    res.status(500).json({ message: err.message });
-  } finally {
-    if (useSession) session.endSession();
-  }
-};
-
-// Create a custom task owned by a schacht
-export const createCustomTask = async (req, res) => {
-  const {
+  // Every score operation writes the same schacht document. This serializes races with deletes.
+  const schacht = await Schacht.findByIdAndUpdate(
     schachtId,
-    name,
-    points,
-    repeatable = false,
-    interval = "none",
-    description = "",
-    category = "",
-  } = req.body;
-
-  if (!schachtId || !name || typeof points !== "number") {
-    return res
-      .status(400)
-      .json({ message: "Missing required fields: schachtId, name, points" });
-  }
-
-  const useSession = supportsTransactions();
-  const session = useSession ? await mongoose.startSession() : null;
-  if (useSession) session.startTransaction();
-
-  try {
-    // Create task
-    const task = new Task({
-      name,
-      points,
-      repeatable,
-      interval,
-      description,
-      category,
-      ownerSchachtId: schachtId,
-    });
-    await task.save(useSession ? { session } : {});
-
-    // Create immediate completion
-    const completion = new TaskCompletion({
-      schachtId,
-      taskId: task._id,
-      completedAt: new Date(),
-    });
-    await completion.save(useSession ? { session } : {});
-
-    // Update schacht points
-    const updatedSchacht = await Schacht.findByIdAndUpdate(
-      schachtId,
-      { $inc: { points } },
-      { new: true, ...(useSession ? { session } : {}) }
+    { $inc: { points: values.pointsAwarded, revision: 1 } },
+    { new: true, session },
+  ).lean();
+  if (!schacht) fail(404, "Schacht niet gevonden.");
+  const [completion] = await TaskCompletion.create(
+    [
+      {
+        ...values,
+        schachtId,
+        taskId: task._id,
+        taskName: task.name,
+        createdBy: user.email,
+      },
+    ],
+    { session },
+  );
+  return { completion, updatedSchacht: schacht };
+}
+export async function completeTask(req, res) {
+  const schachtId = objectId(req.body?.schachtId),
+    taskId = objectId(req.body?.taskId);
+  const result = await transaction(async (session) => {
+    const existing =
+      typeof req.body.requestKey === "string" &&
+      (await TaskCompletion.findOne({
+        schachtId,
+        requestKey: req.body.requestKey,
+      })
+        .session(session)
+        .lean());
+    if (existing) {
+      if (String(existing.taskId) !== taskId)
+        fail(409, "Deze verzoekcode is al gebruikt.");
+      return {
+        completion: existing,
+        updatedSchacht: await Schacht.findById(schachtId)
+          .session(session)
+          .lean(),
+        replayed: true,
+      };
+    }
+    const task = await Task.findById(taskId).session(session).lean();
+    if (!task) fail(404, "Opdracht niet gevonden.");
+    return recordCompletion(task, schachtId, req.body, req.user, session);
+  });
+  res.status(result.replayed ? 200 : 201).json(result);
+}
+export async function createCustomTask(req, res) {
+  const schachtId = objectId(req.body?.schachtId),
+    input = req.body;
+  const name = textValue(input.name, "Naam van de opdracht");
+  const points = input.customPoints;
+  if (!Number.isSafeInteger(points) || Math.abs(points) > 10000 || points === 0)
+    fail(
+      400,
+      "Kies een geheel aantal punten tussen −10000 en 10000, behalve 0.",
+    );
+  const type = input.repeatType;
+  if (!["once", "weekly", "unlimited"].includes(type))
+    fail(400, "Kies eenmalig, wekelijks of onbeperkt.");
+  const result = await transaction(async (session) => {
+    const existing =
+      typeof input.requestKey === "string" &&
+      (await TaskCompletion.findOne({ schachtId, requestKey: input.requestKey })
+        .session(session)
+        .lean());
+    if (existing)
+      return {
+        completion: existing,
+        updatedSchacht: await Schacht.findById(schachtId)
+          .session(session)
+          .lean(),
+        replayed: true,
+      };
+    const [task] = await Task.create(
+      [
+        {
+          name,
+          points,
+          ownerSchachtId: schachtId,
+          category: "Eigen opdracht",
+          description: textValue(input.description, "Uitleg", 1000, false),
+          repeatRule: { type },
+          pricing: { type: "fixed" },
+          requiresLint: input.requiresLint !== false,
+        },
+      ],
+      { session },
+    );
+    return {
+      task,
+      ...(await recordCompletion(task, schachtId, input, req.user, session)),
+    };
+  });
+  res.status(result.replayed ? 200 : 201).json(result);
+}
+export async function deleteCompletion(req, res) {
+  const result = await transaction(async (session) => {
+    const completion = await TaskCompletion.findByIdAndDelete(
+      objectId(req.params.completionId),
+      { session },
     ).lean();
-
-    if (useSession) await session.commitTransaction();
-
-    res.status(201).json({ task, completion, updatedSchacht });
-  } catch (err) {
-    if (useSession) await session.abortTransaction();
-    console.error("Error creating custom task:", err);
-    res.status(500).json({ message: err.message });
-  } finally {
-    if (useSession) session.endSession();
-  }
-};
-
-// Delete a task completion
-export const deleteCompletion = async (req, res) => {
-  const { completionId } = req.params;
-
-  const useSession = supportsTransactions();
-  const session = useSession ? await mongoose.startSession() : null;
-  if (useSession) session.startTransaction();
-
-  try {
-    const completion = await TaskCompletion.findById(completionId).session(
-      useSession ? session : null
+    if (!completion) fail(404, "Voltooiing niet gevonden.");
+    if (!Number.isSafeInteger(completion.pointsAwarded))
+      fail(409, "Deze oude voltooiing moet eerst worden gemigreerd.");
+    const updatedSchacht = await Schacht.findByIdAndUpdate(
+      completion.schachtId,
+      { $inc: { points: -completion.pointsAwarded, revision: 1 } },
+      { new: true, session },
+    ).lean();
+    if (!updatedSchacht) fail(404, "Schacht niet gevonden.");
+    return { updatedSchacht };
+  });
+  res.json(result);
+}
+export async function deleteCustomTask(req, res) {
+  await transaction(async (session) => {
+    const task = await Task.findByIdAndDelete(objectId(req.params.taskId), {
+      session,
+    }).lean();
+    if (!task) fail(404, "Opdracht niet gevonden.");
+    if (!task.ownerSchachtId)
+      fail(403, "Standaardopdrachten kunnen niet worden verwijderd.");
+    const completions = await TaskCompletion.find({ taskId: task._id })
+      .session(session)
+      .lean();
+    let points = 0;
+    for (const c of completions) {
+      if (!Number.isSafeInteger(c.pointsAwarded))
+        fail(409, "Oude voltooiing zonder puntensnapshot.");
+      points += c.pointsAwarded;
+    }
+    await Schacht.updateOne(
+      { _id: task.ownerSchachtId },
+      { $inc: { points: -points, revision: 1 } },
+      { session },
     );
-
-    if (!completion) {
-      if (useSession) await session.abortTransaction();
-      return res.status(404).json({ message: "Completion not found" });
-    }
-
-    const task = await Task.findById(completion.taskId)
-      .lean()
-      .session(useSession ? session : null);
-
-    if (task) {
-      await Schacht.findByIdAndUpdate(
-        completion.schachtId,
-        { $inc: { points: -task.points } },
-        useSession ? { session } : {}
-      );
-    }
-
-    await completion.deleteOne(useSession ? { session } : {});
-
-    if (useSession) await session.commitTransaction();
-    res.status(200).json({ message: "Completion removed" });
-  } catch (err) {
-    if (useSession) await session.abortTransaction();
-    console.error("Error deleting completion:", err);
-    res.status(500).json({ message: "Error removing completion" });
-  } finally {
-    if (useSession) session.endSession();
-  }
-};
-
-// Delete a custom task
-export const deleteCustomTask = async (req, res) => {
-  const { taskId } = req.params;
-
-  const useSession = supportsTransactions();
-  const session = useSession ? await mongoose.startSession() : null;
-  if (useSession) session.startTransaction();
-
-  try {
-    const task = await Task.findById(taskId).session(useSession ? session : null);
-    if (!task) {
-      if (useSession) await session.abortTransaction();
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    if (!task.ownerSchachtId) {
-      if (useSession) await session.abortTransaction();
-      return res.status(400).json({ message: "Cannot delete global task" });
-    }
-
-    const completions = await TaskCompletion.find({ taskId })
-      .lean()
-      .session(useSession ? session : null);
-
-    const schachtPointsMap = {};
-    completions.forEach((c) => {
-      if (!schachtPointsMap[c.schachtId]) schachtPointsMap[c.schachtId] = 0;
-      schachtPointsMap[c.schachtId] += task.points;
-    });
-
-    const updatePromises = Object.entries(schachtPointsMap).map(
-      ([schachtId, pointsToSubtract]) =>
-        Schacht.findByIdAndUpdate(
-          schachtId,
-          { $inc: { points: -pointsToSubtract } },
-          useSession ? { session } : {}
-        )
+    await TaskCompletion.deleteMany({ taskId: task._id }, { session });
+  });
+  res.json({ ok: true });
+}
+export async function getContexts(req, res) {
+  res.json(await TaskContext.find().sort({ name: 1 }).lean());
+}
+export async function createContext(req, res) {
+  const name = textValue(req.body?.name, "Naam"),
+    { kind, group } = req.body;
+  const groups =
+    kind === "person"
+      ? ["praesidium", "senior"]
+      : kind === "event"
+        ? ["event", "cantus", "cvs"]
+        : [];
+  if (!groups.includes(group)) fail(400, "Ongeldig type persoon/evenement.");
+  // Reuse a canonical identity, even if the person has more than one role.
+  res
+    .status(201)
+    .json(
+      await TaskContext.findOneAndUpdate(
+        { kind, normalizedName: normalize(name) },
+        {
+          $setOnInsert: { name, kind, normalizedName: normalize(name) },
+          $addToSet: { groups: group },
+        },
+        { upsert: true, new: true, runValidators: true },
+      ),
     );
-
-    await Promise.all([
-      ...updatePromises,
-      TaskCompletion.deleteMany({ taskId }).session(useSession ? session : null),
-      task.deleteOne(useSession ? { session } : {}),
-    ]);
-
-    if (useSession) await session.commitTransaction();
-    res.status(200).json({ message: "Custom task deleted" });
-  } catch (err) {
-    if (useSession) await session.abortTransaction();
-    console.error("Error deleting custom task:", err);
-    res.status(500).json({ message: "Error deleting custom task" });
-  } finally {
-    if (useSession) session.endSession();
-  }
-};
+}

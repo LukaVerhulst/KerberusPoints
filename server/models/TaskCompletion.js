@@ -1,26 +1,39 @@
-import mongoose from 'mongoose';
-
-const taskCompletionSchema = new mongoose.Schema({
-  schachtId: { 
+import mongoose from "mongoose";
+const schema = new mongoose.Schema({
+  schachtId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Schacht',
-    required: true
+    ref: "Schacht",
+    required: true,
   },
-  taskId: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Task',
-    required: true
-  },
-  completedAt: {
-    type: Date,
-    default: Date.now
-  }
+  taskId: { type: mongoose.Schema.Types.ObjectId, ref: "Task", required: true },
+  taskName: { type: String, required: true },
+  pointsAwarded: { type: Number, required: true },
+  completedAt: { type: Date, default: Date.now },
+  createdBy: String,
+  ruleKey: String,
+  requestKey: String,
+  quantity: Number,
+  variant: String,
+  note: String,
+  subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "TaskContext" },
+  eventId: { type: mongoose.Schema.Types.ObjectId, ref: "TaskContext" },
+  subject: String,
+  event: String,
+  evidenceConfirmed: Boolean,
+  lintConfirmed: Boolean,
+  formalitiesConfirmed: Boolean,
+  approvalConfirmed: Boolean,
 });
-
-// Add indexes for frequently queried fields
-taskCompletionSchema.index({ schachtId: 1 }); // For finding completions by schacht
-taskCompletionSchema.index({ taskId: 1 }); // For finding completions by task
-taskCompletionSchema.index({ schachtId: 1, taskId: 1 }); // Compound index for unique lookups
-taskCompletionSchema.index({ completedAt: -1 }); // For sorting by completion date
-
-export default mongoose.model('TaskCompletion', taskCompletionSchema);
+schema.index({ schachtId: 1, completedAt: -1 });
+schema.index(
+  { schachtId: 1, taskId: 1, ruleKey: 1 },
+  { unique: true, partialFilterExpression: { ruleKey: { $type: "string" } } },
+);
+schema.index(
+  { schachtId: 1, requestKey: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { requestKey: { $type: "string" } },
+  },
+);
+export default mongoose.model("TaskCompletion", schema);

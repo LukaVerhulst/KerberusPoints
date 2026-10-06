@@ -1,69 +1,68 @@
+import { timingSafeEqual } from "node:crypto";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-const signToken = (payload) =>
-  jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-export const login = (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Missing credentials" });
-  }
-
-  // Parse the admins list from environment
-  let admins;
-  try {
-    admins = JSON.parse(process.env.ADMINS);
-  } catch (err) {
-    console.error("Invalid ADMINS JSON in .env");
-    return res.status(500).json({ message: "Server misconfiguration" });
-  }
-
-  console.log(email);
-  // Find matching admin
-  const admin = admins.find(
-    (a) => a.email === email && a.password === password
+import { admins, currentUser, cookieOptions } from "../middleware/auth.js";
+const attempts = new Map();
+const equal = (a, b) => {
+  const left = Buffer.from(a),
+    right = Buffer.from(b);
+  return left.length === right.length && timingSafeEqual(left, right);
+};
+export async function login(req, res) {
+  const { email, password } = req.body ?? {};
+  if (
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    email.length > 200 ||
+    password.length > 200 ||
+    !email ||
+    !password
+  )
+    return res.status(400).json({ message: "Vul je e-mail en wachtwoord in." });
+  const key = req.ip;
+  const now = Date.now();
+  for (const [ip, entry] of attempts)
+    if (entry.until < now) attempts.delete(ip);
+  const record = attempts.get(key) || { count: 0, until: now + 15 * 60 * 1000 };
+  if (record.count >= 15)
+    return res
+      .status(429)
+      .json({ message: "Te veel pogingen. Probeer over 15 minuten opnieuw." });
+  record.count++;
+  attempts.set(key, record);
+  if (attempts.size > 10000) attempts.delete(attempts.keys().next().value);
+  if (!process.env.JWT_SECRET || !admins().length)
+    return res
+      .status(503)
+      .json({ message: "Beheerderslogin is nog niet geconfigureerd." });
+  const admin = admins().find(
+    (a) => a.email?.toLowerCase() === email.trim().toLowerCase(),
   );
-
-  if (!admin) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  const token = signToken({ email: admin.email, role: "admin" });
-
+  const valid =
+    admin &&
+    (admin.passwordHash
+      ? await bcrypt.compare(password, admin.passwordHash)
+      : typeof admin.password === "string" && equal(password, admin.password));
+  if (!valid)
+    return res
+      .status(401)
+      .json({ message: "E-mail of wachtwoord niet juist." });
+  attempts.delete(key);
+  const token = jwt.sign(
+    { email: admin.email, role: "admin" },
+    process.env.JWT_SECRET,
+    { algorithm: "HS256", expiresIn: "7d" },
+  );
   res.cookie("token", token, {
-    httpOnly: true,
-    secure: true, // Always true (Vercel is HTTPS)
-    sameSite: "none", // Required for cross-origin
+    ...cookieOptions(),
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
-
-  return res.status(200).json({ email: admin.email });
-};
-
-export const logout = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true, // Always true (Vercel is HTTPS)
-    sameSite: "none",
-  });
-  return res.status(200).json({ ok: true });
-};
-
-export const me = (req, res) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate");
-  
-  const token = req.cookies?.token;
-  if (!token) {
-    return res.status(200).json({ user: null });
-  }
-
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    return res.status(200).json({
-      user: { email: payload.email, role: payload.role },
-    });
-  } catch (err) {
-    return res.status(200).json({ user: null });
-  }
-};
+  res.json({ email: admin.email, role: "admin" });
+}
+export function logout(req, res) {
+  res.clearCookie("token", cookieOptions());
+  res.json({ ok: true });
+}
+export function me(req, res) {
+  res.json({ user: currentUser(req) });
+}

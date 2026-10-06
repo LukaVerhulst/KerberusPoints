@@ -16,7 +16,7 @@ export const generatePDF = (schachten, logoBase64) => {
   }
 
   // Title
-  const title = "Schachten Punten";
+  const title = "Kerberus - Schachtenpunten 2026-2027";
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
   const textWidth = doc.getTextWidth(title);
@@ -55,12 +55,16 @@ export const generatePDF = (schachten, logoBase64) => {
   }
 
   autoTable(doc, {
-    head: [["#", "Name", "Points"]],
+    head: [["#", "Naam", "Punten"]],
     body: rows,
     startY: 100,
     theme: "grid",
     styles: { fontSize: 10, valign: "middle" },
-    headStyles: { fillColor: "#0401b1", textColor: "#ffffff", fontStyle: "bold" },
+    headStyles: {
+      fillColor: "#0401b1",
+      textColor: "#ffffff",
+      fontStyle: "bold",
+    },
     columnStyles: { 0: { halign: "center" } },
     didParseCell: (data) => {
       if (data.section === "body") {
@@ -69,5 +73,5 @@ export const generatePDF = (schachten, logoBase64) => {
     },
   });
 
-  doc.save("leaderboard.pdf");
+  doc.save("kerberus-klassement-2026-2027.pdf");
 };

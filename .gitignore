@@ -49,3 +49,8 @@ server/.env
 # Vite / React specific
 # ========================
 node_modules/.vite
+
+.vercel/
+.env.*
+!.env.example
+coverage/

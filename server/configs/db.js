@@ -1,41 +1,34 @@
 import mongoose from "mongoose";
-
-// Cache the connection to reuse in serverless environments
-let cached = global.mongoose;
-
-if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null };
+import Task from "../models/Tasks.js";
+import TaskCompletion from "../models/TaskCompletion.js";
+import Schacht from "../models/Schacht.js";
+import TaskContext from "../models/TaskContext.js";
+import AppConfig from "../models/AppConfig.js";
+let promise;
+export default async function connectDB() {
+  if (!promise)
+    promise = (async () => {
+      if (!process.env.MONGODB_URI) throw new Error("MONGODB_URI ontbreekt");
+      await mongoose.connect(process.env.MONGODB_URI, {
+        dbName: process.env.MONGODB_DB_NAME || "KerberusPoints",
+        bufferCommands: false,
+        maxPoolSize: 5,
+        serverSelectionTimeoutMS: 7000,
+        socketTimeoutMS: 20000,
+      });
+      // Uniqueness is a database constraint, not a find-before-insert check.
+      for (const model of [
+        Task,
+        TaskCompletion,
+        Schacht,
+        TaskContext,
+        AppConfig,
+      ])
+        await model.init();
+      return mongoose.connection;
+    })().catch((error) => {
+      promise = undefined;
+      throw error;
+    });
+  return promise;
 }
-
-const connectDB = async () => {
-    // If already connected, return the existing connection
-    if (cached.conn) {
-        return cached.conn;
-    }
-
-    // If connection is in progress, wait for it
-    if (!cached.promise) {
-        const opts = {
-            bufferCommands: false,
-            maxPoolSize: 10, // Maintain up to 10 socket connections
-            serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-            socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-        };
-
-        cached.promise = mongoose.connect(`${process.env.MONGODB_URI}/KerberusPoints`, opts).then((mongoose) => {
-            console.log("Database Connected");
-            return mongoose;
-        });
-    }
-
-    try {
-        cached.conn = await cached.promise;
-    } catch (e) {
-        cached.promise = null;
-        throw e;
-    }
-
-    return cached.conn;
-}
-
-export default connectDB;

@@ -1,86 +1,91 @@
-import React, { useState } from 'react'
-import { useAppContext } from '../context/AppContext'
-import { assets } from '../assets/assets'
-
-const Login = () => {
-  const { login } = useAppContext()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    login(email.trim(), password)
+import { useState } from "react";
+import { useAppContext } from "../context/context";
+import { errorMessage } from "../lib/api";
+export default function Login() {
+  const { login } = useAppContext();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function submit(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await login(email.trim(), password);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
   }
-
   return (
-    <div className="relative min-h-screen">
-      {/* background image (same as Home) */}
-      <img
-        src={assets.kerberus_schachten}
-        alt="background"
-        className="fixed inset-0 w-full h-full object-cover filter brightness-30"
-        style={{ objectPosition: 'center 75%' }}
-      />
-      {/* optional darker overlay to improve contrast */}
-      <div className="fixed inset-0 bg-black/30 pointer-events-none" />
-
-      {/* centered card (logo + form) */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-4xl bg-white/85 backdrop-blur-sm rounded-lg shadow-lg p-6 md:p-10 flex flex-col md:flex-row items-center gap-8">
-          {/* logo area */}
-          <div className="shrink-0 flex items-center justify-center">
-            <img
-              src={assets.kerberus_logo}
-              alt="Kerberus logo"
-              className="w-36 md:w-48"
+    <main className="login-page">
+      <section className="login-story">
+        <a className="brand" href="/">
+          <img src="/kerberus.svg" alt="Kerberus schild" />
+          <span>
+            KERBERUS<small>SCHACHTENPUNTEN</small>
+          </span>
+        </a>
+        <p className="eyebrow">ACADEMIEJAAR 2026 — 2027</p>
+        <h1>
+          Een jaar vol verhalen.
+          <br />
+          <em>Eén superschacht.</em>
+        </h1>
+        <p className="intro">
+          Elke opdracht telt. Volg de strijd om de titel en geef onze schachten
+          de punten die ze verdienen.
+        </p>
+        <figure>
+          <img
+            className="group-photo"
+            src="/schachten-2026.webp"
+            alt="De volledige Kerberusgroep van 2026–2027 met het clubschild"
+          />
+          <figcaption>Onze schachten. Onze club. Ons jaar.</figcaption>
+        </figure>
+      </section>
+      <section className="login-card">
+        <p className="eyebrow">VOOR DE TEMSTER</p>
+        <h2>Welkom terug</h2>
+        <p className="muted">
+          Controleer het bewijs in de Facebookgroep en registreer daarna de
+          punten.
+        </p>
+        <form onSubmit={submit}>
+          <label>
+            E-mail
+            <input
+              type="email"
+              autoComplete="username"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
-
-          {/* form area */}
-          <form
-            onSubmit={handleSubmit}
-            className="w-full md:w-96 flex flex-col items-center justify-center gap-4"
-          >
-            <h2 className="text-3xl md:text-4xl text-gray-900 font-medium">Inloggen</h2> {/* Log in */}
-            <p className="text-sm text-gray-600/90">Log in met uw admin gegevens om door te gaan.</p>
-
-            <div className="w-full h-px bg-gray-400/60 my-3" />
-
-            <div className="flex items-center w-full bg-transparent border border-gray-400/60 h-12 rounded-full overflow-hidden pl-4 gap-3">
-              <img src={assets.mail_icon} alt="mail" className="w-5 h-5 opacity-75" />
-              <input
-                type="email"
-                placeholder="E-mail"
-                className="bg-transparent text-gray-700 placeholder-gray-500 outline-none text-sm w-full h-full"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            <div className="flex items-center w-full bg-transparent border border-gray-400/60 h-12 rounded-full overflow-hidden pl-4 gap-3">
-              <img src={assets.lock_icon} alt="lock" className="w-5 h-5 opacity-75" />
-              <input
-                type="password"
-                placeholder="Wachtwoord"
-                className="bg-transparent text-gray-700 placeholder-gray-500 outline-none text-sm w-full h-full"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="mt-4 w-full h-11 rounded-full text-white bg-primary-blue hover:opacity-95 transition-opacity"
-            >
-              Inloggen {/* Login */}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  )
+          </label>
+          <label>
+            Wachtwoord
+            <input
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          <button className="primary" disabled={busy}>
+            {busy ? "Inloggen…" : "Inloggen →"}
+          </button>
+        </form>
+        <p className="login-footer">Kerberus · Kortrijk · 2026–2027</p>
+      </section>
+    </main>
+  );
 }
-
-export default Login

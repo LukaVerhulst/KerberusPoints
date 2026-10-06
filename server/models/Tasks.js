@@ -1,26 +1,41 @@
-import mongoose from 'mongoose';
-
-const taskSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  points: { type: Number, required: true },
-  repeatable: { type: Boolean, default: false },
-  interval: { 
-    type: String,
-    enum: ['none', 'daily', 'weekly'],
-    default: 'none'
+import mongoose from "mongoose";
+const schema = new mongoose.Schema(
+  {
+    code: String,
+    academicYear: String,
+    order: Number,
+    name: { type: String, required: true, maxlength: 200 },
+    points: { type: Number, required: true },
+    description: String,
+    category: String,
+    repeatRule: {
+      type: {
+        type: String,
+        enum: ["once", "unlimited", "weekly", "person", "event", "quantity"],
+        required: true,
+      },
+      group: String,
+      label: String,
+    },
+    pricing: {
+      type: {
+        type: String,
+        enum: ["fixed", "variant", "variable"],
+        default: "fixed",
+      },
+      minPoints: Number,
+      variants: [{ _id: false, key: String, label: String, points: Number }],
+    },
+    requiresLint: { type: Boolean, default: true },
+    requiresFormalities: Boolean,
+    requiresApproval: Boolean,
+    ownerSchachtId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Schacht",
+      default: null,
+    },
   },
-  description: String,
-  category: String,
-  // NEW: optional owner — if set, the task is only visible to that schacht
-  ownerSchachtId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Schacht',
-    default: null
-  }
-});
-
-// Add indexes for frequently queried fields
-taskSchema.index({ ownerSchachtId: 1 }); // For filtering tasks by owner
-taskSchema.index({ category: 1 }); // For filtering by category
-
-export default mongoose.model('Task', taskSchema);
+  { timestamps: true },
+);
+schema.index({ ownerSchachtId: 1 });
+export default mongoose.model("Task", schema);

@@ -1,35 +1,35 @@
-import { Route, Routes, Navigate } from "react-router-dom";
-import Home from "./pages/Home";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useAppContext } from "./context/AppContext";
+import { useAppContext } from "./context/context";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
-import PrivateRoute from "./components/PrivateRoute";
-
-function App() {
-  const { isAuthenticated } = useAppContext();
-
+export default function App() {
+  const { user, authLoading, authError, fetchUser } = useAppContext();
+  if (authLoading) return <main className="loading-page">Kerberus laden…</main>;
+  if (authError)
+    return (
+      <main className="loading-page">
+        <p>{authError}</p>
+        <button onClick={fetchUser}>Opnieuw proberen</button>
+      </main>
+    );
   return (
-    <div className="text-default min-h-screen flex flex-col text-gray-700 bg-white">
-      <Toaster />
-
-
+    <>
+      <Toaster position="top-center" />
       <Routes>
-        <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Home />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="*"
-            element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}
-          />
-        </Routes>
-      </div>
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" replace /> : <Login />}
+        />
+        <Route
+          path="/"
+          element={user ? <Home /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to={user ? "/" : "/login"} replace />}
+        />
+      </Routes>
+    </>
   );
 }
-
-export default App;

@@ -1,22 +1,17 @@
-import mongoose from 'mongoose';
-
-const schachtSchema = new mongoose.Schema({
+import mongoose from "mongoose";
+const schema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
-        unique: true
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      maxlength: 100,
     },
-    points: {
-        type: Number,
-        default: 0
-    }
-}, {
-    timestamps: true,
-    collection: 'schachten' 
-});
-
-// Add indexes for frequently queried fields
-schachtSchema.index({ points: -1 }); // For sorting leaderboard
-schachtSchema.index({ name: 1 }); // For name lookups (unique already creates an index, but explicit is good)
-
-export default mongoose.model('Schacht', schachtSchema);
+    points: { type: Number, default: 0 },
+    revision: { type: Number, default: 0 },
+  },
+  { timestamps: true, collection: "schachten" },
+);
+schema.index({ points: -1, name: 1 });
+export default mongoose.model("Schacht", schema);
