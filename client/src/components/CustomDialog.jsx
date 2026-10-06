@@ -7,11 +7,7 @@ export default function CustomDialog({ schacht, onClose, onSaved }) {
     name: "",
     customPoints: "",
     description: "",
-    note: "",
     repeatType: "once",
-    requiresLint: true,
-    lintConfirmed: false,
-    evidenceConfirmed: false,
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -92,36 +88,6 @@ export default function CustomDialog({ schacht, onClose, onSaved }) {
             onChange={(e) => set("description", e.target.value)}
           />
         </label>
-        <div className="checks">
-          <label>
-            <input
-              type="checkbox"
-              checked={input.requiresLint}
-              onChange={(e) => set("requiresLint", e.target.checked)}
-            />
-            Lint verplicht voor deze opdracht.
-          </label>
-          {input.requiresLint && (
-            <label>
-              <input
-                type="checkbox"
-                required
-                checked={input.lintConfirmed}
-                onChange={(e) => set("lintConfirmed", e.target.checked)}
-              />
-              Uitgevoerd met lint.
-            </label>
-          )}
-          <label>
-            <input
-              type="checkbox"
-              required
-              checked={input.evidenceConfirmed}
-              onChange={(e) => set("evidenceConfirmed", e.target.checked)}
-            />
-            Foto/video staat in de Facebookgroep.
-          </label>
-        </div>
         <div
           className={`score-preview ${input.customPoints < 0 ? "negative" : ""}`}
         >

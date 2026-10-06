@@ -72,9 +72,6 @@ export default function Home() {
         </a>
         <div className="topbar-actions">
           <span className="season">2026 — 2027</span>
-          <button className="text-button" onClick={() => setModal("rules")}>
-            Spelregels
-          </button>
           <button
             className="text-button"
             title={user.email}
@@ -89,17 +86,6 @@ export default function Home() {
       <main className="main">
         <section className="hero">
           <div className="hero-copy">
-            <p className="eyebrow">DE STRIJD OM SUPERSCHACHT</p>
-            <h1>
-              Maak er een
-              <br />
-              <em>legendarisch jaar van.</em>
-            </h1>
-            <p>
-              Elke opdracht een verhaal.
-              <br />
-              Elke punt een stap dichter bij de titel.
-            </p>
             <div className="hero-stats">
               <span>
                 <strong>{schachten.length}</strong> schachten
@@ -119,18 +105,8 @@ export default function Home() {
               src="/schachten-2026.webp"
               alt="De volledige Kerberusgroep van 2026–2027 rond het clubschild"
             />
-            <span>
-              Onze schachten, ons jaar. <small>↗</small>
-            </span>
           </button>
         </section>
-        <div className="rules-strip">
-          <span className="rule-dot">i</span>
-          <p>Met lint. Met bewijs. Met formaliteiten bij het binnentrekken.</p>
-          <button className="text-button" onClick={() => setModal("rules")}>
-            Alle spelregels →
-          </button>
-        </div>
         <div className={`dashboard mobile-${view}`}>
           <aside className="leaderboard panel">
             <div className="section-heading">
@@ -173,11 +149,7 @@ export default function Home() {
               <div className="empty">
                 <span className="empty-symbol">♜</span>
                 <h3>Een nieuw jaar begint</h3>
-                <p>
-                  Voeg de eerste schacht toe.
-                  <br />
-                  Wie wordt onze superschacht?
-                </p>
+                <p>Voeg de eerste schacht toe.</p>
                 <button className="primary" onClick={() => setModal("add")}>
                   + Eerste schacht
                 </button>
@@ -312,53 +284,6 @@ export default function Home() {
             src="/schachten-2026.webp"
             alt="De volledige Kerberusgroep met het clubschild"
           />
-        </Modal>
-      )}
-      {modal === "rules" && (
-        <Modal title="Spelregels 2026–2027" onClose={() => setModal(null)}>
-          <div className="rules-content">
-            <p className="muted">
-              De opdrachten uit het document van de temster bepalen de punten en
-              herhaalregels.
-            </p>
-            <ol>
-              <li>
-                <strong>Met lint</strong>
-                <p>Tenzij de opdracht anders vermeldt, draag je je lint.</p>
-              </li>
-              <li>
-                <strong>Geen bewijs = geen punten</strong>
-                <p>
-                  Plaats een foto of video in de Facebookgroep voordat punten
-                  worden toegekend.
-                </p>
-              </li>
-              <li>
-                <strong>Binnentrekken met formaliteiten</strong>
-                <p>Zonder formaliteiten telt het niet.</p>
-              </li>
-              <li>
-                <strong>Goedkeuring waar vereist</strong>
-                <p>
-                  De temster keurt taakjes en hun punten goed. Het praesidium
-                  kiest de foto van de week.
-                </p>
-              </li>
-            </ol>
-            <p>
-              Wekelijkse opdrachten lopen van maandag tot zondag, in Belgische
-              tijd. Persoons- en evenementlimieten gelden voor alle varianten
-              samen.
-            </p>
-            <a
-              className="button-link secondary"
-              href="/opdrachten-2026-2027.pdf"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Bekijk het originele opdrachtendocument ↗
-            </a>
-          </div>
         </Modal>
       )}
     </div>

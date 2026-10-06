@@ -28,32 +28,17 @@ export default function Login() {
             KERBERUS<small>SCHACHTENPUNTEN</small>
           </span>
         </a>
-        <p className="eyebrow">ACADEMIEJAAR 2026 — 2027</p>
-        <h1>
-          Een jaar vol verhalen.
-          <br />
-          <em>Eén superschacht.</em>
-        </h1>
-        <p className="intro">
-          Elke opdracht telt. Volg de strijd om de titel en geef onze schachten
-          de punten die ze verdienen.
-        </p>
         <figure>
           <img
             className="group-photo"
             src="/schachten-2026.webp"
             alt="De volledige Kerberusgroep van 2026–2027 met het clubschild"
           />
-          <figcaption>Onze schachten. Onze club. Ons jaar.</figcaption>
         </figure>
       </section>
       <section className="login-card">
         <p className="eyebrow">VOOR DE TEMSTER</p>
         <h2>Welkom terug</h2>
-        <p className="muted">
-          Controleer het bewijs in de Facebookgroep en registreer daarna de
-          punten.
-        </p>
         <form onSubmit={submit}>
           <label>
             E-mail

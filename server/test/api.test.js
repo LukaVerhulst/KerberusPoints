@@ -15,10 +15,6 @@ let repl, app, agent, schacht;
 const headers = { "X-Kerberus-Request": "1", Origin: "http://localhost:5173" };
 const base = () => ({
   schachtId: String(schacht._id),
-  evidenceConfirmed: true,
-  lintConfirmed: true,
-  formalitiesConfirmed: true,
-  approvalConfirmed: true,
   requestKey: crypto.randomUUID(),
 });
 const complete = (code, input = {}) =>
@@ -176,25 +172,27 @@ test("quantity multiplier rejects zero, fractional, string and extreme quantitie
   assert.equal(await score(), 14);
   await complete("bakdag", { quantity: 3 }).expect(400);
 });
-test("variable minimum points require approval, integer bounds and explanation", async () => {
-  await complete("taakje-praesidium", {
-    points: 9,
-    note: "Temster keurde goed",
-  }).expect(400);
-  await complete("taakje-praesidium", { points: 15 }).expect(400);
-  await complete("taakje-praesidium", {
-    points: 15,
-    note: "Goedgekeurd door de temster",
-  }).expect(201);
+test("temster chooses variable points without a required note, with integer bounds", async () => {
+  for (const points of [9, 10.5, "15", 10001])
+    await complete("taakje-praesidium", { points }).expect(400);
+  await complete("taakje-praesidium", { points: 15 }).expect(201);
   assert.equal(await score(), 15);
 });
-test("evidence, lint and formalities are required server-side, with no-lint exception", async () => {
-  await complete("halve-liter", { formalitiesConfirmed: false }).expect(400);
-  await complete("bakdag", { evidenceConfirmed: false }).expect(400);
-  await complete("bakdag", { lintConfirmed: false }).expect(400);
-  await complete("overnachten", { lintConfirmed: false }).expect(201);
-  assert.equal(await score(), 60);
+
+test("admin confirmation needs no evidence, lint or approval checkboxes and stores no fabricated confirmations", async () => {
+  const r = await complete("halve-liter").expect(201);
+  for (const field of [
+    "evidenceConfirmed",
+    "lintConfirmed",
+    "formalitiesConfirmed",
+    "approvalConfirmed",
+  ])
+    assert.equal(r.body.completion[field], undefined);
+  await complete("bakdag").expect(201);
+  await complete("overnachten").expect(201);
+  assert.equal(await score(), 100);
 });
+
 test("removal reverses the awarded snapshot even after task points change; concurrent undo is safe", async () => {
   const r = await complete("onderbroeken", { quantity: 4 }).expect(201);
   await Task.updateOne(

@@ -119,7 +119,7 @@ export default function Workspace({
           className="text-button settings"
           onClick={() => setModal({ type: "deleteSchacht" })}
         >
-          Beheren
+          Verwijderen
         </button>
       </div>
       {loading ? (
@@ -144,7 +144,7 @@ export default function Workspace({
           {!completions.length && (
             <div className="empty">
               <span className="empty-symbol">↗</span>
-              <h3>Het verhaal begint hier</h3>
+              <h3>Nog geen registraties</h3>
               <p>Voltooide opdrachten verschijnen hier.</p>
               <button onClick={() => setView("tasks")}>
                 Bekijk opdrachten

@@ -15,13 +15,8 @@ export default function CompletionDialog({
     quantity: 1,
     variant: task.pricing.variants?.[0]?.key || "",
     points: task.pricing.minPoints || task.points,
-    note: "",
     subjectId: "",
     eventId: "",
-    evidenceConfirmed: false,
-    lintConfirmed: false,
-    formalitiesConfirmed: false,
-    approvalConfirmed: false,
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -50,9 +45,7 @@ export default function CompletionDialog({
     (rule.type !== "quantity" ||
       (input.quantity >= 1 && input.quantity <= 1000)) &&
     (task.pricing.type !== "variable" ||
-      (input.points >= task.pricing.minPoints &&
-        input.points <= 10000 &&
-        input.note.trim()));
+      (input.points >= task.pricing.minPoints && input.points <= 10000));
   async function addContext() {
     setContextBusy(true);
     setError("");
@@ -216,67 +209,6 @@ export default function CompletionDialog({
             />
           </label>
         )}
-        <label>
-          {task.pricing.type === "variable"
-            ? "Goedkeuring van de temster / toelichting"
-            : "Notitie of link naar bewijs (optioneel)"}
-          <textarea
-            maxLength="1000"
-            required={task.pricing.type === "variable"}
-            value={input.note}
-            onChange={(e) => set("note", e.target.value)}
-            rows="2"
-          />
-        </label>
-        <div className="checks">
-          <label>
-            <input
-              required
-              type="checkbox"
-              checked={input.evidenceConfirmed}
-              onChange={(e) => set("evidenceConfirmed", e.target.checked)}
-            />
-            Foto/video staat in de Facebookgroep.
-          </label>
-          {task.requiresLint && (
-            <label>
-              <input
-                required
-                type="checkbox"
-                checked={input.lintConfirmed}
-                onChange={(e) => set("lintConfirmed", e.target.checked)}
-              />
-              Uitgevoerd met lint.
-            </label>
-          )}
-          {!task.requiresLint && (
-            <p className="field-hint">
-              Deze opdracht moet volgens het document zonder lint.
-            </p>
-          )}
-          {task.requiresFormalities && (
-            <label>
-              <input
-                required
-                type="checkbox"
-                checked={input.formalitiesConfirmed}
-                onChange={(e) => set("formalitiesConfirmed", e.target.checked)}
-              />
-              Binnentrekken gebeurde met formaliteiten.
-            </label>
-          )}
-          {task.requiresApproval && (
-            <label>
-              <input
-                required
-                type="checkbox"
-                checked={input.approvalConfirmed}
-                onChange={(e) => set("approvalConfirmed", e.target.checked)}
-              />
-              Vereiste goedkeuring / aanwezigheid bevestigd.
-            </label>
-          )}
-        </div>
         <div className={`score-preview ${total < 0 ? "negative" : ""}`}>
           <span>
             {total < 0 ? "Punten aftrekken" : "Punten toevoegen"}

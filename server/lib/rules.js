@@ -44,20 +44,7 @@ export function weekKey(now = new Date()) {
   return date.toISOString().slice(0, 10);
 }
 export function evaluate(task, input, now = new Date()) {
-  if (input.evidenceConfirmed !== true)
-    fail(
-      400,
-      "Geen bewijs = geen punten. Bevestig de foto/video in de Facebookgroep.",
-    );
-  if (task.requiresLint && input.lintConfirmed !== true)
-    fail(400, "Bevestig dat de opdracht met lint is uitgevoerd.");
-  if (task.requiresFormalities && input.formalitiesConfirmed !== true)
-    fail(400, "Binnentrekken telt alleen met formaliteiten.");
-  if (task.requiresApproval && input.approvalConfirmed !== true)
-    fail(
-      400,
-      "Bevestig de vereiste goedkeuring / aanwezigheid van het praesidium.",
-    );
+  // The authenticated temster assesses completion before confirming points.
   const type = task.repeatRule.type;
   let quantity = 1;
   if (type === "quantity") {
@@ -91,8 +78,6 @@ export function evaluate(task, input, now = new Date()) {
   if (!Number.isSafeInteger(points) || Math.abs(points) > 1000000)
     fail(400, "Ongeldig aantal punten.");
   const note = textValue(input.note, "Notitie", 1000, false);
-  if (task.pricing.type === "variable" && !note)
-    fail(400, "Noteer wie de punten heeft goedgekeurd.");
   let ruleKey;
   if (type === "once") ruleKey = "once";
   else if (type === "weekly") ruleKey = `week:${weekKey(now)}`;
@@ -114,10 +99,6 @@ export function evaluate(task, input, now = new Date()) {
     note,
     ruleKey,
     requestKey,
-    evidenceConfirmed: true,
-    lintConfirmed: input.lintConfirmed === true,
-    formalitiesConfirmed: input.formalitiesConfirmed === true,
-    approvalConfirmed: input.approvalConfirmed === true,
   };
 }
 export const stableTaskId = (code) =>

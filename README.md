@@ -42,7 +42,7 @@ De 39 standaardopdrachten zijn getranscribeerd uit `Schachtenopdrachten Kerberus
 
 Een vaste puntwaarde, variant of variabele waarde vanaf een minimum kan met de regel worden gecombineerd. Winst/verlies, kus/muil, Cara-bonus, 7-sprong en CVS-bonus staan expliciet in de brondefinities. Subject- en eventnamen worden genormaliseerd en hergebruikt; gebruik altijd dezelfde volledige naam/identiteit. De server bewaart `pointsAwarded`, `taskName`, context, hoeveelheid, variant, notitie en beheerder bij iedere voltooiing. Terugdraaien gebruikt deze snapshot, niet een later gewijzigde opdrachtwaarde.
 
-Bewijs in de Facebookgroep, lint, formaliteiten en vereiste goedkeuring worden per registratie door de temster bevestigd en server-side gecontroleerd. De app controleert geen Facebookuploads automatisch. Het document bevat geen expliciete evenementenlimiet voor opkuisen, woensdagaanwezigheid of reclame: die blijven onbeperkt volgens de bron.
+De temster beoordeelt bewijs, lint en formaliteiten buiten de app en bevestigt alleen de punten. Registratie heeft geen verplichte bewijsvelden, vinkjes of notitie; de app controleert geen Facebookuploads automatisch. Het document bevat geen expliciete evenementenlimiet voor opkuisen, woensdagaanwezigheid of reclame: die blijven onbeperkt volgens de bron.
 
 ## Nieuw jaar resetten
 
@@ -73,7 +73,7 @@ npm test
 npm audit
 ```
 
-De 17 integratietests gebruiken een geïsoleerde MongoDB replica set en testen limieten, varianten, positieve/negatieve punten, puntensnapshots, auth, CSRF, race conditions, cascadeverwijdering en de idempotente jaarreset. GitHub Actions voert lint, build en backendtests uit. `node_modules` worden door npm geïnstalleerd en blijven buiten Git.
+De 17 integratietests gebruiken een geïsoleerde MongoDB replica set en testen limieten, varianten, positieve/negatieve punten, puntensnapshots, auth, CSRF, registratie zonder bewijsvelden, race conditions, cascadeverwijdering en de idempotente jaarreset. GitHub Actions voert lint, build en backendtests uit. `node_modules` worden door npm geïnstalleerd en blijven buiten Git.
 
 ## Ontwerpbronnen
 

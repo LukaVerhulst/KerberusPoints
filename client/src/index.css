@@ -215,36 +215,19 @@ p {
   background: #111e3c;
   color: white;
   display: grid;
-  grid-template-columns: 1fr 1.35fr;
+  grid-template-columns: 1fr;
+  margin-bottom: 24px;
   overflow: hidden;
-  min-height: 263px;
 }
 .hero-copy {
-  padding: 32px 32px 28px;
-}
-.hero-copy .eyebrow {
-  color: #a6b8e8;
-  font-size: 9px;
-}
-.hero h1 {
-  font-size: 33px;
-  line-height: 1.2;
-  letter-spacing: -1.3px;
-  margin: 11px 0 12px;
-}
-.hero h1 em {
-  font-style: normal;
-  color: #ffab79;
-}
-.hero-copy > p:not(.eyebrow) {
-  color: #b7c3dd;
-  font-size: 13px;
+  padding: 18px 24px;
+  order: 2;
 }
 .hero-stats {
   display: flex;
   gap: 16px;
   align-items: center;
-  margin-top: 23px;
+  margin-top: 0;
   font-size: 10px;
   color: #bac6df;
 }
@@ -270,7 +253,7 @@ p {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  min-height: 200px;
+  min-height: 0;
 }
 .hero-image:hover:not(:disabled) {
   background: #070c13;
@@ -278,51 +261,8 @@ p {
 .hero-image img {
   width: 100%;
   height: auto;
+  max-height: 320px;
   object-fit: contain;
-}
-.hero-image > span {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  background: linear-gradient(transparent, #080e19e6);
-  padding: 34px 22px 16px;
-  color: white;
-  font-size: 11px;
-  text-align: left;
-}
-.hero-image small {
-  font-size: 17px;
-}
-.rules-strip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 56px;
-  margin: 8px 0 16px;
-}
-.rule-dot {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: #e8edf9;
-  color: var(--blue);
-  font-size: 12px;
-  display: grid;
-  place-items: center;
-  font-weight: bold;
-}
-.rules-strip p {
-  color: #747d90;
-  font-size: 11px;
-}
-.rules-strip button {
-  margin-left: auto;
-  color: var(--blue);
-  white-space: nowrap;
 }
 .dashboard {
   display: grid;
@@ -930,23 +870,6 @@ input[type="checkbox"] {
   accent-color: var(--blue);
   margin: 2px 0 0;
 }
-.checks {
-  padding: 12px 14px;
-  margin-top: 20px;
-  border-radius: 10px;
-  background: #f6f8fc;
-}
-.checks label {
-  flex-direction: row;
-  align-items: flex-start;
-  margin: 10px 0;
-  line-height: 1.5;
-  font-size: 11px;
-  font-weight: 500;
-  gap: 10px;
-  cursor: pointer;
-  min-height: 28px;
-}
 .score-preview {
   display: flex;
   align-items: center;
@@ -1024,21 +947,6 @@ input[type="checkbox"] {
   border-radius: 10px;
   display: block;
 }
-.rules-content > p {
-  font-size: 12px;
-}
-.rules-content ol {
-  padding-left: 22px;
-  font-size: 13px;
-}
-.rules-content li {
-  padding: 7px 0;
-}
-.rules-content li p {
-  font-size: 12px;
-  color: #8490a3;
-  margin-top: 4px;
-}
 .button-link {
   display: inline-block;
   text-decoration: none;
@@ -1059,27 +967,7 @@ input[type="checkbox"] {
   margin: auto;
 }
 .login-story .brand {
-  margin-bottom: 48px;
-}
-.login-story > .eyebrow {
-  color: var(--blue);
-  font-size: 9px;
-  margin-bottom: 17px;
-}
-.login-story h1 {
-  font-size: 39px;
-  line-height: 1.25;
-  letter-spacing: -1.5px;
-}
-.login-story h1 em {
-  color: var(--blue);
-  font-style: normal;
-}
-.login-story .intro {
-  margin: 20px 0 29px;
-  color: #7e889d;
-  font-size: 13px;
-  max-width: 420px;
+  margin-bottom: 28px;
 }
 .login-story figure {
   border-radius: 16px;
@@ -1090,11 +978,6 @@ input[type="checkbox"] {
   display: block;
   width: 100%;
   height: auto;
-}
-.login-story figcaption {
-  padding: 12px 17px;
-  font-size: 10px;
-  color: #c4c9d7;
 }
 .login-card {
   background: white;
@@ -1129,14 +1012,6 @@ input[type="checkbox"] {
   color: #a1a9b9;
   text-align: center;
 }
-@media (min-width: 1450px) {
-  .hero-copy {
-    padding: 36px;
-  }
-  .hero h1 {
-    font-size: 35px;
-  }
-}
 @media (max-width: 1050px) {
   .main {
     padding: 0 20px;
@@ -1147,12 +1022,6 @@ input[type="checkbox"] {
   .dashboard {
     grid-template-columns: 290px minmax(0, 1fr);
     gap: 16px;
-  }
-  .hero-copy {
-    padding: 27px;
-  }
-  .hero h1 {
-    font-size: 28px;
   }
   .hero-stats {
     gap: 12px;
@@ -1173,9 +1042,6 @@ input[type="checkbox"] {
   }
   .login-page {
     gap: 35px;
-  }
-  .login-story h1 {
-    font-size: 33px;
   }
 }
 @media (max-width: 760px) {
@@ -1217,19 +1083,12 @@ input[type="checkbox"] {
     min-height: 0;
   }
   .hero-copy {
-    padding: 24px 23px 20px;
-  }
-  .hero h1 {
-    font-size: 29px;
-    line-height: 1.22;
-  }
-  .hero-copy > p:not(.eyebrow) {
-    font-size: 12px;
+    padding: 16px 18px;
   }
   .hero-stats {
-    margin-top: 20px;
+    margin-top: 0;
     font-size: 10px;
-    gap: 20px;
+    gap: 16px;
   }
   .hero-stats strong {
     font-size: 17px;
@@ -1245,35 +1104,6 @@ input[type="checkbox"] {
   }
   .hero-image img {
     width: 100%;
-  }
-  .hero-image > span {
-    font-size: 9px;
-    padding: 25px 17px 12px;
-  }
-  .rules-strip {
-    margin: 5px 0 12px;
-    gap: 8px;
-    align-items: flex-start;
-    padding: 13px 0;
-  }
-  .rules-strip p {
-    font-size: 9px;
-    flex: 1;
-    padding-top: 2px;
-    line-height: 1.5;
-  }
-  .rules-strip .rule-dot {
-    width: 17px;
-    height: 17px;
-    font-size: 9px;
-  }
-  .rules-strip button {
-    font-size: 9px;
-    padding: 0;
-    min-height: 24px;
-    max-width: 74px;
-    white-space: normal;
-    text-align: right;
   }
   .dashboard {
     display: block;
@@ -1542,10 +1372,6 @@ input[type="checkbox"] {
   .modal-actions .danger {
     flex: 1;
   }
-  .checks label {
-    font-size: 12px;
-    min-height: 34px;
-  }
   .modal form label {
     font-size: 12px;
   }
@@ -1555,20 +1381,11 @@ input[type="checkbox"] {
     font-size: 16px;
     min-height: 46px;
   }
-  .modal input[type="checkbox"] {
-    min-height: 18px;
-  }
   .inline-create input {
     font-size: 12px;
   }
   .modal .field-hint {
     font-size: 11px;
-  }
-  .rules-content > p {
-    font-size: 12px;
-  }
-  .rules-content li p {
-    font-size: 12px;
   }
   .login-page {
     padding: 26px 20px;
@@ -1579,20 +1396,6 @@ input[type="checkbox"] {
   }
   .login-story .brand {
     margin-bottom: 26px;
-  }
-  .login-story > .eyebrow {
-    font-size: 8px;
-    margin-bottom: 12px;
-  }
-  .login-story h1 {
-    font-size: 30px;
-  }
-  .login-story .intro {
-    margin: 14px 0 22px;
-    font-size: 12px;
-  }
-  .login-story figcaption {
-    font-size: 9px;
   }
   .login-card {
     padding: 27px 23px;
@@ -1651,9 +1454,6 @@ input[type="checkbox"] {
 .export-button {
   font-size: 12px;
 }
-.checks label {
-  font-size: 13px;
-}
 .field-hint {
   font-size: 12px;
 }
@@ -1668,9 +1468,6 @@ input[type="checkbox"] {
 }
 .login-card form label {
   font-size: 13px;
-}
-.rules-strip p {
-  font-size: 12px;
 }
 .selected-name p.muted {
   font-size: 12px;
@@ -1695,17 +1492,8 @@ input[type="checkbox"] {
     font-size: 11px;
     min-height: 44px;
   }
-  .rules-strip p {
-    font-size: 10px;
-  }
-  .rules-strip button {
-    min-height: 44px;
-  }
   .task-points {
     max-width: 95px;
-  }
-  .checks label {
-    font-size: 13px;
   }
   .activity-copy strong {
     font-size: 13px;
